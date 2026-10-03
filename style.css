@@ -121,7 +121,10 @@ button.lg:active { transform: scale(.92); }
 .sync i { width: 7px; height: 7px; border-radius: 50%; background: var(--faint); }
 .sync.live i { background: var(--ok); animation: pulse 2s infinite; }
 .sync.ko i { background: var(--warn); }
-@media (max-width: 380px) { .sync span { display: none; } }
+@media (max-width: 520px) { .sync span { display: none; } .sync i { width: 9px; height: 9px; } }
+.ph > div:first-child { min-width: 0; }
+.ph h1 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 520px) { .ph h1 { font-size: clamp(26px, 7.6vw, 34px); } }
 
 .sec-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
 .sec-h h2 { font-size: 1.15rem; font-weight: 400; margin: 0; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
