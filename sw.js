@@ -1,4 +1,4 @@
-const CACHE = "abbonamenti-v4";
+const CACHE = "abbonamenti-v5";
 const FILE = ["./", "./index.html", "./style.css", "./app.js", "./config.js", "./manifest.json", "./icona-192.png", "./icona-180.png"];
 
 self.addEventListener("install", (e) => {
@@ -23,7 +23,7 @@ self.addEventListener("fetch", (e) => {
   }
   // App: prima la rete (così gli aggiornamenti arrivano), poi la cache.
   if (url.origin === location.origin) {
-    e.respondWith(fetch(e.request).then((res) => {
+    e.respondWith(fetch(e.request, { cache: "no-cache" }).then((res) => {
       const copia = res.clone(); caches.open(CACHE).then((c) => c.put(e.request, copia)); return res;
     }).catch(() => caches.match(e.request, { ignoreSearch: true })));
   }
