@@ -76,6 +76,48 @@ function perCategoria() {
   return [...m].sort((x, y) => y[1] - x[1]);
 }
 
+/* ---------- Icone automatiche dal nome ---------- */
+// Nomi comuni -> sito ufficiale; per gli altri si prova nome.com.
+const SITI = [
+  [/netflix/, "netflix.com"], [/spotify/, "spotify.com"], [/disney/, "disneyplus.com"], [/prime ?video/, "primevideo.com"],
+  [/amazon ?music/, "music.amazon.com"], [/audible/, "audible.it"], [/kindle/, "amazon.it"], [/amazon|prime/, "amazon.it"],
+  [/dazn/, "dazn.com"], [/now ?tv|^now$/, "nowtv.it"], [/sky/, "sky.it"], [/youtube/, "youtube.com"], [/twitch/, "twitch.tv"],
+  [/apple ?music/, "music.apple.com"], [/apple ?tv/, "tv.apple.com"], [/icloud/, "icloud.com"], [/apple/, "apple.com"],
+  [/google ?one|google ?drive/, "one.google.com"], [/gemini/, "gemini.google.com"], [/google/, "google.com"],
+  [/chat ?gpt|openai/, "chatgpt.com"], [/claude|anthropic/, "claude.ai"], [/perplexity/, "perplexity.ai"], [/midjourney/, "midjourney.com"],
+  [/adobe|photoshop|lightroom|creative cloud/, "adobe.com"], [/microsoft|office|365|onedrive/, "microsoft.com"], [/xbox|game ?pass/, "xbox.com"],
+  [/playstation|ps ?plus|psn/, "playstation.com"], [/nintendo/, "nintendo.com"], [/steam/, "steampowered.com"],
+  [/dropbox/, "dropbox.com"], [/notion/, "notion.so"], [/canva/, "canva.com"], [/figma/, "figma.com"], [/github/, "github.com"],
+  [/paramount/, "paramountplus.com"], [/crunchyroll/, "crunchyroll.com"], [/infinity|mediaset/, "mediasetinfinity.mediaset.it"],
+  [/raiplay/, "raiplay.it"], [/timvision/, "timvision.it"], [/\btim\b/, "tim.it"], [/vodafone/, "vodafone.it"], [/iliad/, "iliad.it"],
+  [/windtre|wind ?tre|\bwind\b/, "windtre.it"], [/fastweb/, "fastweb.it"], [/ho\.? ?mobile/, "ho-mobile.it"], [/kena/, "kenamobile.it"], [/very ?mobile/, "verymobile.it"],
+  [/tidal/, "tidal.com"], [/deezer/, "deezer.com"], [/duolingo/, "duolingo.com"], [/linkedin/, "linkedin.com"], [/telegram/, "telegram.org"],
+  [/whatsapp/, "whatsapp.com"], [/^x$|twitter/, "x.com"], [/nordvpn/, "nordvpn.com"], [/expressvpn/, "expressvpn.com"], [/surfshark/, "surfshark.com"],
+  [/1password/, "1password.com"], [/bitwarden/, "bitwarden.com"], [/bitdefender/, "bitdefender.it"], [/norton/, "norton.com"], [/kaspersky/, "kaspersky.it"],
+  [/patreon/, "patreon.com"], [/storytel/, "storytel.com"], [/strava/, "strava.com"], [/headspace/, "headspace.com"],
+  [/enel/, "enel.it"], [/\beni\b|plenitude/, "eniplenitude.com"], [/a2a/, "a2a.eu"], [/\bhera\b/, "gruppohera.it"], [/edison/, "edisonenergia.it"],
+];
+function sitoDi(nome) {
+  const n = String(nome || "").toLowerCase().trim();
+  if (!n) return "";
+  for (const [re, sito] of SITI) if (re.test(n)) return sito;
+  const slug = n.replace(/\b(abbonamento|premium|plus|family|famiglia|pro|basic|standard)\b/g, "").replace(/[^a-z0-9]/g, "");
+  return slug.length >= 3 ? slug + ".com" : "";
+}
+const iniziali = (s) => String(s || "?").trim().split(/\s+/).slice(0, 2).map((w) => w[0] || "").join("").toUpperCase() || "?";
+const iconeKo = new Set();
+function iconaHTML(a, classe = "") {
+  const sito = sitoDi(a.nome), col = coloreCat(nomeCat(a));
+  const img = sito && !iconeKo.has(sito)
+    ? `<img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(sito)}&sz=128" alt="" referrerpolicy="no-referrer" data-sito="${esc(sito)}" onload="icoCaricata(this)" onerror="icoErrore(this)">` : "";
+  return `<span class="ico ${classe}" style="--c:${col}" aria-hidden="true"><b>${esc(iniziali(a.nome))}</b>${img}</span>`;
+}
+// Google restituisce un globo generico 16x16 quando il sito non ha un'icona: in quel caso restano le iniziali.
+window.icoCaricata = (im) => {
+  if (im.naturalWidth <= 16) { iconeKo.add(im.dataset.sito); im.remove(); } else im.parentElement.classList.add("ok");
+};
+window.icoErrore = (im) => { iconeKo.add(im.dataset.sito); im.remove(); };
+
 /* ---------- Base64 UTF-8 ---------- */
 function b64enc(testo) {
   const byte = new TextEncoder().encode(testo);
@@ -197,7 +239,7 @@ function voceHTML(a, data = a.prossimoRinnovo, i = 0) {
   return `<li style="--i:${i}" class="${a.id === stato.nuovo ? "nuova" : ""}"><button class="voce ${classeVoce(a, data)}" data-id="${esc(a.id)}"
     aria-label="${esc(a.nome)}, ${eur.format(a.costo)} ${FREQ[a.frequenza]}, ${a.attivo ? "rinnovo " + quando(g) : "in pausa"}">
     <span class="talloncino" aria-hidden="true"><span class="giorno">${d}</span><span class="mese">${MESI[m - 1]}</span></span>
-    <span style="min-width:0"><span class="nome">${esc(a.nome)}</span><span class="dettaglio"><i style="--c:${coloreCat(nomeCat(a))}"></i>${esc(cat)}</span></span>
+    <span style="min-width:0"><span class="nome">${iconaHTML(a)}<span class="t">${esc(a.nome)}</span></span><span class="dettaglio"><i style="--c:${coloreCat(nomeCat(a))}"></i>${esc(cat)}</span></span>
     <span class="prezzo"><span class="importo">${eur.format(a.costo)}</span><span class="stato">${a.attivo ? quando(g) : "in pausa"}</span></span>
   </button></li>`;
 }
@@ -237,7 +279,7 @@ function disegnaHome(anima) {
     const g = giorniDa(oggi, prossimo.prossimoRinnovo), [, m, d] = prossimo.prossimoRinnovo.split("-").map(Number);
     nx.className = "card next " + classeVoce(prossimo, prossimo.prossimoRinnovo);
     nx.innerHTML = `<span class="talloncino"><span class="giorno">${d}</span><span class="mese">${MESI[m - 1]}</span></span>
-      <div style="min-width:0"><span class="lbl">Prossimo addebito</span><b class="nome">${esc(prossimo.nome)}</b><span class="stato">${eur.format(prossimo.costo)}</span></div>
+      <div style="min-width:0"><span class="lbl">Prossimo addebito</span><b class="nome">${iconaHTML(prossimo)}<span class="t">${esc(prossimo.nome)}</span></b><span class="stato">${eur.format(prossimo.costo)}</span></div>
       <div class="cnt">${g === 0 ? `<b>oggi</b>` : `<b class="num">${g}</b><span>${g === 1 ? "giorno" : "giorni"}</span>`}</div>`;
     nx.onclick = () => apriModulo(prossimo);
   }
@@ -412,7 +454,7 @@ function disegnaStat(anima) {
   const top = [...att].sort((a, b) => quotaMensile(b) - quotaMensile(a)).slice(0, 5), tmax = Math.max(1, ...top.map(quotaMensile));
   const tb = $("#top");
   tb.classList.toggle("still", !anima);
-  tb.innerHTML = top.map((a, i) => `<li data-id="${esc(a.id)}" style="animation-delay:${i * 50}ms;--c:${coloreCat(nomeCat(a))}"><b>${esc(a.nome)}</b><span class="v">${eur.format(quotaMensile(a))}</span>
+  tb.innerHTML = top.map((a, i) => `<li data-id="${esc(a.id)}" style="animation-delay:${i * 50}ms;--c:${coloreCat(nomeCat(a))}"><b class="nome">${iconaHTML(a)}<span class="t">${esc(a.nome)}</span></b><span class="v">${eur.format(quotaMensile(a))}</span>
     <div class="bar"><i style="width:${(quotaMensile(a) / tmax) * 100}%;animation-delay:${i * 60}ms"></i></div></li>`).join("") || `<li style="color:var(--muted)">—</li>`;
   tb.querySelectorAll("li[data-id]").forEach((li) => li.addEventListener("click", () => apriModulo(stato.abbonamenti.find((x) => x.id === li.dataset.id))));
 }
@@ -456,28 +498,26 @@ $$("#tabbar button").forEach((b) => b.addEventListener("click", () => vai(b.data
 $$("[data-vai]").forEach((b) => b.addEventListener("click", () => vai(b.dataset.vai)));
 window.addEventListener("popstate", () => vai(location.hash.slice(1), false));
 
-let thumbPronto = false, thumbT = null;
+let thumbPronto = false, thumbAnim = null;
+// Un solo movimento continuo: la bolla si allunga in proporzione alla distanza e si ricompatta arrivando.
+// Se si tocca un'altra tab a metà corsa, riparte dal punto in cui si trova.
 function muoviThumb(liquido) {
   const b = $("#tabbar button.on"), t = $("#tb-thumb");
   if (!b) return;
-  const x1 = b.offsetLeft, w1 = b.offsetWidth;
-  clearTimeout(thumbT);
-  if (!thumbPronto || !liquido || pocoMoto()) {
-    t.classList.add("noanim"); t.classList.remove("stretch");
-    t.style.width = w1 + "px"; t.style.setProperty("--x", x1 + "px");
-    thumbPronto = true;
-    requestAnimationFrame(() => requestAnimationFrame(() => t.classList.remove("noanim")));
-    return;
-  }
-  // effetto goccia: si allunga fino a coprire la nuova tab, poi si ritira su di essa
-  const x0 = parseFloat(t.style.getPropertyValue("--x")) || 0, w0 = t.offsetWidth;
-  const sx = Math.min(x0, x1), ex = Math.max(x0 + w0, x1 + w1);
-  t.classList.add("stretch");
-  t.style.setProperty("--x", sx + "px"); t.style.width = (ex - sx) + "px";
-  thumbT = setTimeout(() => {
-    t.classList.remove("stretch");
-    t.style.setProperty("--x", x1 + "px"); t.style.width = w1 + "px";
-  }, 200);
+  const x1 = b.offsetLeft;
+  t.style.width = b.offsetWidth + "px";
+  let da = Number(t.dataset.x ?? x1);
+  if (thumbAnim) { da = new DOMMatrixReadOnly(getComputedStyle(t).transform).m41; thumbAnim.cancel(); thumbAnim = null; }
+  t.dataset.x = x1;
+  t.style.transform = `translateX(${x1}px)`;
+  if (!thumbPronto || !liquido || pocoMoto() || Math.abs(x1 - da) < 1) { thumbPronto = true; return; }
+  const d = Math.abs(x1 - da), sx = 1 + Math.min(0.32, d / 520), sy = 1 - (sx - 1) * 0.35;
+  thumbAnim = t.animate([
+    { transform: `translateX(${da}px) scale(1, 1)` },
+    { transform: `translateX(${da + (x1 - da) * 0.55}px) scale(${sx}, ${sy})`, offset: 0.45 },
+    { transform: `translateX(${x1}px) scale(1, 1)` },
+  ], { duration: Math.round(380 + d * 0.45), easing: "cubic-bezier(.32,.72,.24,1)" });
+  thumbAnim.onfinish = () => { thumbAnim = null; };
 }
 window.addEventListener("resize", () => { muoviThumb(false); $$(".seg").forEach((s) => segSync(s, true)); });
 
@@ -533,6 +573,7 @@ function apriModulo(a) {
   for (const el of form.elements) el.disabled = solaLettura;
   if (solaLettura) mostraErrore("Senza connessione non puoi modificare.");
   aggiornaEquiv();
+  aggiornaIcona();
   sheet.style.removeProperty("--dy");
   bloccaSfondo(true);
   sheet.classList.add("on"); sheet.setAttribute("aria-hidden", "false");
@@ -585,6 +626,13 @@ function aggiornaEquiv() {
   $("#equiv").textContent = f === "mensile" ? `≈ ${eur.format(m * 12)} all'anno` : `≈ ${eur.format(m)} al mese · ${eur.format(m * 12)} all'anno`;
 }
 form.elements.costo.addEventListener("input", aggiornaEquiv);
+let icoT;
+function aggiornaIcona() {
+  const n = form.elements.nome.value.trim();
+  $("#ico-anteprima").innerHTML = n ? iconaHTML({ nome: n, categoria: form.elements.categoria.value.trim() }, "grande") : "";
+}
+form.elements.nome.addEventListener("input", () => { clearTimeout(icoT); icoT = setTimeout(aggiornaIcona, 350); });
+form.elements.categoria.addEventListener("input", () => { clearTimeout(icoT); icoT = setTimeout(aggiornaIcona, 350); });
 form.elements.frequenza.addEventListener("change", aggiornaEquiv);
 
 function mostraErrore(t) {
