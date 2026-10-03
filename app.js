@@ -10,7 +10,11 @@ const eur = new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" 
 const eur0 = new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
 const MESI = ["gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic"];
 const FREQ = { mensile: "mensile", annuale: "annuale", settimanale: "settimanale" };
-const TABS = ["home", "lista", "calendario", "statistiche", "impostazioni"];
+const TABS = ["home", "lista", "statistiche", "attivita", "abitudini", "obiettivi", "note", "calendario", "impostazioni"];
+// sezioni sempre visibili nella barra in basso del telefono; le altre stanno nel menu "Altro"
+const TABS_BARRA = ["home", "lista", "attivita", "calendario"];
+// registri riempiti anche da moduli.js
+const RENDER = {}, AGGIUNGI = {}, DOPO_RENDER = [];
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -166,9 +170,13 @@ async function leggi(file) {
 }
 
 // Rilegge sempre il file prima di scrivere, così PC e iPhone non si sovrascrivono.
-async function modifica(file, cambia, messaggio) {
+async function leggiOVuoto(file, vuoto) {
+  try { return await leggi(file); } catch (e) { if (e.status === 404) return { dati: vuoto(), sha: undefined }; throw e; }
+}
+
+async function modifica(file, cambia, messaggio, vuoto) {
   for (let tentativo = 0; tentativo < 3; tentativo++) {
-    const { dati, sha } = await leggi(file);
+    const { dati, sha } = vuoto ? await leggiOVuoto(file, vuoto) : await leggi(file);
     const nuovi = cambia(dati);
     try {
       await gh(`/contents/${file}`, {
@@ -203,6 +211,7 @@ async function carica() {
     stato.caricato = true;
     localStorage.setItem(LS.cache, JSON.stringify(dati));
     mostraBanner("");
+    await caricaModuli();
     setSync("live", "Sincronizzato");
   } catch (e) {
     stato.online = false;
@@ -224,7 +233,8 @@ function disegna() {
   if (!stato.tab) return;
   const anima = stato.animare.has(stato.tab);
   stato.animare.delete(stato.tab);
-  ({ home: disegnaHome, lista: disegnaLista, calendario: disegnaCal, statistiche: disegnaStat, impostazioni: () => {} })[stato.tab](anima);
+  RENDER[stato.tab]?.(anima);
+  DOPO_RENDER.forEach((f) => f());
 }
 
 function classeVoce(a, data) {
@@ -295,6 +305,8 @@ function disegnaHome(anima) {
     : `<li class="vuoto-s">${stato.abbonamenti.length ? "Nessun addebito nei prossimi 30 giorni." : "Nessun abbonamento ancora: tocca + per aggiungere il primo."}</li>`;
   collegaVoci(box);
 
+  disegnaOggi();
+
   // categorie
   const cats = perCategoria(), max = Math.max(1, ...cats.map((c) => c[1]));
   const cb = $("#cats");
@@ -354,6 +366,7 @@ function disegnaCal(anima) {
   const da = `${anno}-${pad(mese + 1)}-01`, fino = `${anno}-${pad(mese + 1)}-${pad(giorniMese)}`;
   const perGiorno = {};
   for (const a of attivi()) for (const d of addebiti(a, da, fino)) (perGiorno[d] ||= []).push(a);
+  const evMese = eventiTra(da, fino);
   const oggi = oggiISO();
   let html = ["lun", "mar", "mer", "gio", "ven", "sab", "dom"].map((w) => `<div class="wd">${w}</div>`).join("");
   const celle = Math.ceil((inizio + giorniMese) / 7) * 7;
@@ -363,7 +376,7 @@ function disegnaCal(anima) {
     const tot = lst.reduce((s, a) => s + a.costo, 0);
     html += `<button class="day ${dt.getMonth() !== mese ? "altro" : ""} ${k === oggi ? "oggi-d" : ""} ${stato.cal.giorno === k ? "sel" : ""}" data-d="${k}" style="animation-delay:${i * 10}ms" ${dt.getMonth() !== mese ? "tabindex=-1" : ""}>
       <span class="n">${dt.getDate()}</span>
-      ${lst.length ? `<span class="tot">${tot >= 100 ? Math.round(tot) : tot.toFixed(0)}€</span><span class="dots">${lst.slice(0, 3).map((a) => `<i style="--c:${coloreCat(nomeCat(a))}"></i>`).join("")}</span>` : `<span class="dots"></span>`}
+      ${lst.length ? `<span class="tot">${tot >= 100 ? Math.round(tot) : tot.toFixed(0)}€</span>` : ""}<span class="dots">${lst.slice(0, 3).map((a) => `<i style="--c:${coloreCat(nomeCat(a))}"></i>`).join("")}${(evMese[k] || []).slice(0, 2).map(() => `<i class="ev"></i>`).join("")}</span>
     </button>`;
   }
   const cal = $("#cal");
@@ -381,6 +394,7 @@ function disegnaCal(anima) {
   const box = $("#cal-lista");
   box.innerHTML = mostra.length ? mostra.map((x, i) => voceHTML(x.a, x.d, i)).join("") : `<li class="vuoto-s">Nessun addebito.</li>`;
   collegaVoci(box);
+  disegnaEventiCal();
 }
 function calSposta(n) { const d = new Date(stato.cal.anno, stato.cal.mese + n, 1); stato.cal = { anno: d.getFullYear(), mese: d.getMonth(), giorno: null }; disegnaCal(true); }
 $("#cal-prev").addEventListener("click", () => calSposta(-1));
@@ -459,6 +473,8 @@ function disegnaStat(anima) {
   tb.querySelectorAll("li[data-id]").forEach((li) => li.addEventListener("click", () => apriModulo(stato.abbonamenti.find((x) => x.id === li.dataset.id))));
 }
 
+Object.assign(RENDER, { home: disegnaHome, lista: disegnaLista, calendario: disegnaCal, statistiche: disegnaStat, impostazioni: () => {} });
+
 /* ---------- Tab e navigazione ---------- */
 let navT = null;
 function vai(tab, storia = true) {
@@ -468,9 +484,12 @@ function vai(tab, storia = true) {
   const prima = stato.tab ? $(`#p-${stato.tab}`) : null;
   stato.tab = tab;
   stato.animare.add(tab);
-  $$("#tabbar button").forEach((b) => { const on = b.dataset.tab === tab; b.classList.toggle("on", on); b.setAttribute("aria-current", on ? "page" : "false"); });
+  $$("#tabbar button[data-tab]").forEach((b) => { const on = b.dataset.tab === tab; b.classList.toggle("on", on); b.setAttribute("aria-current", on ? "page" : "false"); });
+  $("#btn-altro").classList.toggle("on", !TABS_BARRA.includes(tab));
+  $$("#altro-pop [data-tab]").forEach((b) => b.classList.toggle("on", b.dataset.tab === tab));
+  chiudiAltro();
   muoviThumb(true);
-  $("#btn-aggiungi").classList.toggle("via", tab === "impostazioni");
+  $("#btn-aggiungi").classList.toggle("via", tab === "impostazioni" || tab === "statistiche");
   try { history[storia ? "pushState" : "replaceState"](null, "", "#" + tab); } catch {}
 
   // la pagina attuale scivola via, poi entra la nuova con gli elementi a cascata
@@ -502,7 +521,8 @@ let thumbPronto = false, thumbAnim = null;
 // Un solo movimento continuo: la bolla si allunga in proporzione alla distanza e si ricompatta arrivando.
 // Se si tocca un'altra tab a metà corsa, riparte dal punto in cui si trova.
 function muoviThumb(liquido) {
-  const b = $("#tabbar button.on"), t = $("#tb-thumb");
+  // la bolla va sul pulsante attivo visibile (sul telefono alcune sezioni stanno in "Altro")
+  const b = $$("#tabbar button.on").find((x) => x.offsetParent !== null), t = $("#tb-thumb");
   if (!b) return;
   // stessa bolla per la barra in basso (orizzontale) e per la barra laterale su PC (verticale)
   const x1 = b.offsetLeft, y1 = b.offsetTop, verticale = matchMedia("(min-width: 1024px)").matches;
@@ -539,6 +559,7 @@ function segSync(seg, senzaAnim) {
 
 /* ---------- Pulsante + ---------- */
 async function aggiungi() {
+  if (AGGIUNGI[stato.tab]) return AGGIUNGI[stato.tab]();
   if (stato.online) return apriModulo(null);
   if (!token()) { toast("Prima collega GitHub: incolla il token qui sotto."); vai("impostazioni"); setTimeout(() => $("#in-token").focus(), 300); return; }
   toast("Mi ricollego a GitHub…");
@@ -546,7 +567,22 @@ async function aggiungi() {
   else toast($("#banner").textContent || "Senza connessione non puoi aggiungere abbonamenti.");
 }
 $("#btn-aggiungi").addEventListener("click", aggiungi);
-$("#btn-aggiungi-side").addEventListener("click", aggiungi);
+$("#btn-aggiungi-side").addEventListener("click", () => (stato.online ? apriModulo(null) : aggiungiAbbonamento()));
+async function aggiungiAbbonamento() { const t = stato.tab; stato.tab = "lista"; await aggiungi(); stato.tab = t; }
+
+/* ---------- Menu "Altro" (solo telefono) ---------- */
+function apriAltro() {
+  const p = $("#altro-pop"); p.hidden = false; void p.offsetWidth; p.classList.add("on");
+  $("#btn-altro").setAttribute("aria-expanded", "true");
+}
+function chiudiAltro() {
+  const p = $("#altro-pop"); if (!p.classList.contains("on")) return;
+  p.classList.remove("on"); $("#btn-altro").setAttribute("aria-expanded", "false");
+  setTimeout(() => { if (!p.classList.contains("on")) p.hidden = true; }, 300);
+}
+$("#btn-altro").addEventListener("click", (e) => { e.stopPropagation(); $("#altro-pop").classList.contains("on") ? chiudiAltro() : apriAltro(); });
+$$("#altro-pop [data-tab]").forEach((b) => b.addEventListener("click", () => vai(b.dataset.tab)));
+document.addEventListener("click", (e) => { if (!e.target.closest("#altro-pop, #btn-altro")) chiudiAltro(); });
 $("#btn-aggiorna").addEventListener("click", async (e) => {
   const s = e.currentTarget.querySelector("svg");
   if (!pocoMoto()) s.animate([{ transform: "rotate(0)" }, { transform: "rotate(360deg)" }], { duration: 700, easing: "cubic-bezier(.2,.8,.2,1)" });
@@ -617,7 +653,7 @@ document.addEventListener("keydown", (e) => {
   const scrivendo = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || "");
   if (scrivendo || sheet.classList.contains("on") || e.ctrlKey || e.metaKey || e.altKey) return;
   if (e.key.toLowerCase() === "n") { e.preventDefault(); aggiungi(); }
-  else if (/^[1-5]$/.test(e.key)) vai(TABS[Number(e.key) - 1]);
+  else if (/^[1-9]$/.test(e.key)) vai(TABS[Number(e.key) - 1]);
   else if (e.key === "/") { e.preventDefault(); vai("lista"); setTimeout(() => $("#q").focus(), 250); }
 });
 // trascina giù per chiudere
@@ -862,6 +898,8 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden && !s
   const d = new Date();
   stato.cal = { anno: d.getFullYear(), mese: d.getMonth(), giorno: null };
 }
+window.addEventListener("DOMContentLoaded", () => {
 vai(location.hash.slice(1) || "home", false);
 document.fonts?.ready.then(() => { muoviThumb(false); $$(".seg").forEach((s) => segSync(s, true)); });
 carica();
+});

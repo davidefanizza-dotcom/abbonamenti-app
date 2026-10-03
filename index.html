@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500&family=Urbanist:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=15">
+  <link rel="stylesheet" href="style.css?v=16">
 </head>
 <body>
 
@@ -59,6 +59,11 @@
       <ol class="lista" id="arrivo"></ol>
     </section>
 
+    <section class="card c-oggi" id="c-oggi">
+      <div class="sec-h"><h2>Oggi <small id="oggi-info"></small></h2><button class="link" data-vai="attivita">Attività</button></div>
+      <div id="oggi-box"></div>
+    </section>
+
     <section class="card c-cats">
       <div class="sec-h"><h2>Per categoria <small>al mese</small></h2><button class="link" data-vai="statistiche">Statistiche</button></div>
       <div class="cats" id="cats"></div>
@@ -87,6 +92,60 @@
     <div class="vuoto card" id="vuoto" hidden></div>
   </section>
 
+
+  <!-- ATTIVITÀ -->
+  <section class="page" id="p-attivita" data-tab="attivita">
+    <header class="ph"><div><p class="eyebrow" id="att-info"></p><h1>Attività</h1></div></header>
+    <form class="riga-add lg" id="att-form"><input id="att-in" placeholder="Cosa devi fare?" autocomplete="off" enterkeyhint="done" aria-label="Nuova attività"><button aria-label="Aggiungi attività"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg></button></form>
+    <div class="ctrl">
+      <div class="seg lg" id="seg-att">
+        <button data-v="tutte" class="on">Tutte <span class="n"></span></button>
+        <button data-v="aperte">Da fare <span class="n"></span></button>
+        <button data-v="fatte">Fatte <span class="n"></span></button>
+      </div>
+      <button class="link-btn" id="att-pulisci" hidden>Rimuovi completate</button>
+    </div>
+    <ul class="todo-l" id="att-lista"></ul>
+    <div class="vuoto card" id="att-vuoto" hidden></div>
+  </section>
+
+  <!-- ABITUDINI -->
+  <section class="page" id="p-abitudini" data-tab="abitudini">
+    <header class="ph"><div><p class="eyebrow" id="hab-info"></p><h1>Abitudini</h1></div></header>
+    <form class="card form-add" id="hab-form">
+      <div class="riga-add lg"><input id="hab-in" placeholder="Nuova abitudine, es. Allenamento" autocomplete="off" enterkeyhint="done" aria-label="Nuova abitudine"><button aria-label="Aggiungi abitudine"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg></button></div>
+      <div class="swatches" id="hab-colori" aria-label="Colore"></div>
+    </form>
+    <ul class="hab-l" id="hab-lista"></ul>
+    <div class="vuoto card" id="hab-vuoto" hidden><h3>Nessuna abitudine</h3><p>Aggiungine una e segna ogni giorno in cui la fai: la serie 🔥 cresce da sola.</p></div>
+  </section>
+
+  <!-- OBIETTIVI -->
+  <section class="page" id="p-obiettivi" data-tab="obiettivi">
+    <header class="ph"><div><p class="eyebrow" id="obi-info"></p><h1>Obiettivi</h1></div></header>
+    <form class="card form-obi" id="obi-form">
+      <input id="obi-nome" placeholder="Obiettivo, es. Fondo emergenza" autocomplete="off" aria-label="Nome obiettivo">
+      <input id="obi-target" inputmode="decimal" placeholder="Traguardo, es. 5000" autocomplete="off" aria-label="Traguardo">
+      <input id="obi-unita" placeholder="Unità (€, km…)" autocomplete="off" aria-label="Unità">
+      <button class="primario">Aggiungi</button>
+    </form>
+    <ul class="obi-l" id="obi-lista"></ul>
+    <div class="vuoto card" id="obi-vuoto" hidden><h3>Nessun obiettivo</h3><p>Fissa un traguardo e avvicinati un passo alla volta con − e +.</p></div>
+  </section>
+
+  <!-- NOTE -->
+  <section class="page" id="p-note" data-tab="note">
+    <header class="ph"><div><p class="eyebrow" id="note-info"></p><h1>Note</h1></div></header>
+    <form class="card note-ed" id="note-ed">
+      <input id="note-tit" placeholder="Titolo" autocomplete="off" aria-label="Titolo">
+      <textarea id="note-body" rows="3" placeholder="Scrivi qualcosa…" aria-label="Testo"></textarea>
+      <div class="note-azioni"><div class="swatches" id="note-colori" aria-label="Colore"></div><span class="spacer"></span><button type="button" class="secondario sm" id="note-annulla" hidden>Annulla</button><button class="primario sm" id="note-salva">Salva nota</button></div>
+    </form>
+    <div class="search lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="note-q" placeholder="Cerca nelle note…" autocomplete="off" enterkeyhint="search"></div>
+    <ul class="note-l" id="note-lista"></ul>
+    <div class="vuoto card" id="note-vuoto" hidden></div>
+  </section>
+
   <!-- CALENDARIO -->
   <section class="page" id="p-calendario" data-tab="calendario">
     <header class="ph"><div><p class="eyebrow" id="cal-info"></p><h1>Calendario</h1></div></header>
@@ -102,6 +161,7 @@
     <section class="card c-cal-lista">
       <div class="sec-h"><h2 id="cal-lista-t"></h2><button class="link" id="cal-tutto" hidden>Tutto il mese</button></div>
       <ol class="lista" id="cal-lista"></ol>
+      <div id="cal-eventi"></div>
     </section>
   </section>
 
@@ -171,16 +231,31 @@
 <nav class="tabbar lg" id="tabbar" aria-label="Sezioni">
   <i class="tb-thumb" id="tb-thumb"></i>
   <div class="tb-brand"><img src="icona-192.png" alt=""><span>Abbonamenti</span></div>
-  <button data-tab="home" aria-label="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9Z"/></svg><span>Home</span></button>
-  <button data-tab="lista" aria-label="Abbonamenti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18M7 14h4"/></svg><span>Elenco</span></button>
-  <button data-tab="calendario" aria-label="Calendario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Calendario</span></button>
-  <button data-tab="statistiche" aria-label="Statistiche"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Statistiche</span></button>
-  <button data-tab="impostazioni" aria-label="Impostazioni"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg><span>Impostazioni</span></button>
+  <button data-tab="home" aria-label="Home" class="m"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9Z"/></svg><span>Home</span></button>
+  <p class="tb-gr">Abbonamenti</p>
+  <button data-tab="lista" aria-label="Abbonamenti" class="m"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18M7 14h4"/></svg><span>Abbonamenti</span></button>
+  <button data-tab="statistiche" aria-label="Statistiche" class=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Statistiche</span></button>
+  <p class="tb-gr">Personale</p>
+  <button data-tab="attivita" aria-label="Attività" class="m"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m4 7 2 2 4-4M4 17l2 2 4-4M13 7h7M13 17h7"/></svg><span>Attività</span><em class="tcnt" data-cnt="attivita"></em></button>
+  <button data-tab="abitudini" aria-label="Abitudini" class=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/><path d="m9 12 2 2 4-4"/></svg><span>Abitudini</span><em class="tcnt" data-cnt="abitudini"></em></button>
+  <button data-tab="obiettivi" aria-label="Obiettivi" class=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg><span>Obiettivi</span><em class="tcnt" data-cnt="obiettivi"></em></button>
+  <button data-tab="note" aria-label="Note" class=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3h10l4 4v14H5z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg><span>Note</span><em class="tcnt" data-cnt="note"></em></button>
+  <button data-tab="calendario" aria-label="Calendario" class="m"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Calendario</span></button>
+  <button data-tab="impostazioni" aria-label="Impostazioni" class="tb-imp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg><span>Impostazioni</span></button>
+  <button type="button" id="btn-altro" class="m solo-m" aria-label="Altro" aria-expanded="false"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg><span>Altro</span></button>
   <div class="tb-fondo">
     <button type="button" class="primario tb-add" id="btn-aggiungi-side"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>Nuovo abbonamento</button>
     <p class="tb-tasti"><kbd>N</kbd> nuovo · <kbd>1</kbd>–<kbd>5</kbd> sezioni</p>
   </div>
 </nav>
+
+<div class="altro-pop lg" id="altro-pop" hidden>
+  <button data-tab="statistiche"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Statistiche</span></button>
+  <button data-tab="abitudini"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/><path d="m9 12 2 2 4-4"/></svg><span>Abitudini</span><em class="tcnt" data-cnt="abitudini"></em></button>
+  <button data-tab="obiettivi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg><span>Obiettivi</span><em class="tcnt" data-cnt="obiettivi"></em></button>
+  <button data-tab="note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3h10l4 4v14H5z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg><span>Note</span><em class="tcnt" data-cnt="note"></em></button>
+  <button data-tab="impostazioni"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg><span>Impostazioni</span></button>
+</div>
 
 <!-- MODULO (pannello dal basso) -->
 <div class="scrim" id="scrim"></div>
@@ -236,7 +311,8 @@
 
 <div class="toasts" id="toasts"></div>
 
-<script src="config.js?v=15"></script>
-<script src="app.js?v=15"></script>
+<script src="config.js?v=16"></script>
+<script src="app.js?v=16"></script>
+<script src="moduli.js?v=16"></script>
 </body>
 </html>
