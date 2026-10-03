@@ -504,18 +504,21 @@ let thumbPronto = false, thumbAnim = null;
 function muoviThumb(liquido) {
   const b = $("#tabbar button.on"), t = $("#tb-thumb");
   if (!b) return;
-  const x1 = b.offsetLeft;
-  t.style.width = b.offsetWidth + "px";
-  let da = Number(t.dataset.x ?? x1);
-  if (thumbAnim) { da = new DOMMatrixReadOnly(getComputedStyle(t).transform).m41; thumbAnim.cancel(); thumbAnim = null; }
-  t.dataset.x = x1;
-  t.style.transform = `translateX(${x1}px)`;
-  if (!thumbPronto || !liquido || pocoMoto() || Math.abs(x1 - da) < 1) { thumbPronto = true; return; }
-  const d = Math.abs(x1 - da), sx = 1 + Math.min(0.32, d / 520), sy = 1 - (sx - 1) * 0.35;
+  // stessa bolla per la barra in basso (orizzontale) e per la barra laterale su PC (verticale)
+  const x1 = b.offsetLeft, y1 = b.offsetTop, verticale = matchMedia("(min-width: 1024px)").matches;
+  t.style.width = b.offsetWidth + "px"; t.style.height = b.offsetHeight + "px";
+  let dx = Number(t.dataset.x ?? x1), dy = Number(t.dataset.y ?? y1);
+  if (thumbAnim) { const m = new DOMMatrixReadOnly(getComputedStyle(t).transform); dx = m.m41; dy = m.m42; thumbAnim.cancel(); thumbAnim = null; }
+  t.dataset.x = x1; t.dataset.y = y1;
+  t.style.transform = `translate(${x1}px, ${y1}px)`;
+  const d = Math.hypot(x1 - dx, y1 - dy);
+  if (!thumbPronto || !liquido || pocoMoto() || d < 1) { thumbPronto = true; return; }
+  const lungo = 1 + Math.min(0.32, d / 520), corto = 1 - (lungo - 1) * 0.35;
+  const sc = verticale ? `scale(${corto}, ${lungo})` : `scale(${lungo}, ${corto})`;
   thumbAnim = t.animate([
-    { transform: `translateX(${da}px) scale(1, 1)` },
-    { transform: `translateX(${da + (x1 - da) * 0.55}px) scale(${sx}, ${sy})`, offset: 0.45 },
-    { transform: `translateX(${x1}px) scale(1, 1)` },
+    { transform: `translate(${dx}px, ${dy}px) scale(1, 1)` },
+    { transform: `translate(${dx + (x1 - dx) * 0.55}px, ${dy + (y1 - dy) * 0.55}px) ${sc}`, offset: 0.45 },
+    { transform: `translate(${x1}px, ${y1}px) scale(1, 1)` },
   ], { duration: Math.round(380 + d * 0.45), easing: "cubic-bezier(.32,.72,.24,1)" });
   thumbAnim.onfinish = () => { thumbAnim = null; };
 }
@@ -543,6 +546,7 @@ async function aggiungi() {
   else toast($("#banner").textContent || "Senza connessione non puoi aggiungere abbonamenti.");
 }
 $("#btn-aggiungi").addEventListener("click", aggiungi);
+$("#btn-aggiungi-side").addEventListener("click", aggiungi);
 $("#btn-aggiorna").addEventListener("click", async (e) => {
   const s = e.currentTarget.querySelector("svg");
   if (!pocoMoto()) s.animate([{ transform: "rotate(0)" }, { transform: "rotate(360deg)" }], { duration: 700, easing: "cubic-bezier(.2,.8,.2,1)" });
@@ -607,7 +611,15 @@ function bloccaSfondo(blocca) {
 }
 $$("[data-chiudi]").forEach((b) => b.addEventListener("click", chiudiModulo));
 $("#scrim").addEventListener("click", chiudiModulo);
-document.addEventListener("keydown", (e) => { if (e.key === "Escape" && sheet.classList.contains("on")) chiudiModulo(); });
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && sheet.classList.contains("on")) return chiudiModulo();
+  // scorciatoie da tastiera per il PC
+  const scrivendo = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || "");
+  if (scrivendo || sheet.classList.contains("on") || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key.toLowerCase() === "n") { e.preventDefault(); aggiungi(); }
+  else if (/^[1-5]$/.test(e.key)) vai(TABS[Number(e.key) - 1]);
+  else if (e.key === "/") { e.preventDefault(); vai("lista"); setTimeout(() => $("#q").focus(), 250); }
+});
 // trascina giù per chiudere
 (() => {
   let y0 = null;

@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500&family=Urbanist:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=14">
+  <link rel="stylesheet" href="style.css?v=15">
 </head>
 <body>
 
@@ -54,12 +54,12 @@
 
     <section class="card next" id="next" hidden></section>
 
-    <section class="card">
+    <section class="card c-arrivo">
       <div class="sec-h"><h2>In arrivo <small id="arrivo-info"></small></h2><button class="link" data-vai="calendario">Calendario</button></div>
       <ol class="lista" id="arrivo"></ol>
     </section>
 
-    <section class="card">
+    <section class="card c-cats">
       <div class="sec-h"><h2>Per categoria <small>al mese</small></h2><button class="link" data-vai="statistiche">Statistiche</button></div>
       <div class="cats" id="cats"></div>
     </section>
@@ -68,6 +68,7 @@
   <!-- ABBONAMENTI -->
   <section class="page" id="p-lista" data-tab="lista">
     <header class="ph"><div><p class="eyebrow" id="lista-info"></p><h1>Abbonamenti</h1></div></header>
+    <div class="filtri">
     <div class="search lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" placeholder="Cerca nome, categoria, nota…" autocomplete="off" enterkeyhint="search"></div>
     <div class="ctrl">
       <div class="seg lg" id="seg-stato">
@@ -81,6 +82,7 @@
         <button data-v="nome">A–Z</button>
       </div>
     </div>
+    </div>
     <ol class="lista" id="lista"></ol>
     <div class="vuoto card" id="vuoto" hidden></div>
   </section>
@@ -88,7 +90,7 @@
   <!-- CALENDARIO -->
   <section class="page" id="p-calendario" data-tab="calendario">
     <header class="ph"><div><p class="eyebrow" id="cal-info"></p><h1>Calendario</h1></div></header>
-    <section class="card">
+    <section class="card c-cal">
       <div class="cal-h">
         <button class="lg round" id="cal-prev" aria-label="Mese precedente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 6-6 6 6 6"/></svg></button>
         <h2 id="cal-titolo"></h2>
@@ -97,7 +99,7 @@
       </div>
       <div class="cal" id="cal"></div>
     </section>
-    <section class="card">
+    <section class="card c-cal-lista">
       <div class="sec-h"><h2 id="cal-lista-t"></h2><button class="link" id="cal-tutto" hidden>Tutto il mese</button></div>
       <ol class="lista" id="cal-lista"></ol>
     </section>
@@ -112,11 +114,11 @@
       <div id="chart"></div>
       <div class="tip" id="tip"></div>
     </section>
-    <section class="card">
+    <section class="card c-donut">
       <div class="sec-h"><h2>Categorie</h2></div>
       <div class="donut-wrap" id="donut"></div>
     </section>
-    <section class="card">
+    <section class="card c-top">
       <div class="sec-h"><h2>I più costosi <small>quota mensile</small></h2></div>
       <ol class="top" id="top"></ol>
     </section>
@@ -168,11 +170,16 @@
 
 <nav class="tabbar lg" id="tabbar" aria-label="Sezioni">
   <i class="tb-thumb" id="tb-thumb"></i>
+  <div class="tb-brand"><img src="icona-192.png" alt=""><span>Abbonamenti</span></div>
   <button data-tab="home" aria-label="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9Z"/></svg><span>Home</span></button>
   <button data-tab="lista" aria-label="Abbonamenti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18M7 14h4"/></svg><span>Elenco</span></button>
   <button data-tab="calendario" aria-label="Calendario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Calendario</span></button>
   <button data-tab="statistiche" aria-label="Statistiche"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Statistiche</span></button>
   <button data-tab="impostazioni" aria-label="Impostazioni"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg><span>Impostazioni</span></button>
+  <div class="tb-fondo">
+    <button type="button" class="primario tb-add" id="btn-aggiungi-side"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>Nuovo abbonamento</button>
+    <p class="tb-tasti"><kbd>N</kbd> nuovo · <kbd>1</kbd>–<kbd>5</kbd> sezioni</p>
+  </div>
 </nav>
 
 <!-- MODULO (pannello dal basso) -->
@@ -229,7 +236,7 @@
 
 <div class="toasts" id="toasts"></div>
 
-<script src="config.js?v=14"></script>
-<script src="app.js?v=14"></script>
+<script src="config.js?v=15"></script>
+<script src="app.js?v=15"></script>
 </body>
 </html>
