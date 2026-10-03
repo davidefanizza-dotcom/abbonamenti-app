@@ -602,7 +602,7 @@ form.addEventListener("submit", async (ev) => {
   };
 
   const btn = $("#btn-salva");
-  btn.disabled = true; btn.textContent = "Salvo…";
+  btn.disabled = true; btn.textContent = "Salvo…"; $("#btn-salva-h").disabled = true;
   try {
     stato.abbonamenti = await modifica(F_ABB, (lista) => {
       const i = lista.findIndex((x) => x.id === record.id);
@@ -618,7 +618,7 @@ form.addEventListener("submit", async (ev) => {
   } catch (e) {
     mostraErrore(e.message);
   } finally {
-    btn.disabled = false; btn.textContent = "Salva";
+    btn.disabled = false; btn.textContent = "Salva"; $("#btn-salva-h").disabled = false;
   }
 });
 
