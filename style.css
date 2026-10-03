@@ -416,26 +416,27 @@ button:disabled { opacity: .45; cursor: default; }
 .tabbar button {
   flex: 1; min-width: 0; position: relative; z-index: 1; border: 0; background: transparent; color: var(--muted);
   display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 2px 6px; border-radius: 999px;
-  transition: color var(--t-base) var(--ease), transform .25s var(--spring);
+  transition: color .45s var(--ease), transform .3s var(--ease);
 }
-.tabbar button svg { width: 22px; height: 22px; transition: transform .35s var(--spring); }
+.tabbar button svg { width: 22px; height: 22px; transition: transform .5s var(--ease); }
 .tabbar button span { font-size: .66rem; font-weight: 600; letter-spacing: .01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-.tabbar button:active { transform: scale(.9); }
+.tabbar button:active { transform: scale(.95); }
 .tabbar button.on { color: var(--text); }
-.tabbar button.on svg { transform: translateY(-1px) scale(1.06); }
+.tabbar button.on svg { transform: translateY(-1px); }
 .tb-thumb {
   position: absolute; z-index: 0; top: 6px; bottom: 6px; left: 0; width: 80px; border-radius: 999px; pointer-events: none;
   background: var(--lg-thumb);
   box-shadow: inset 0 1px 1px var(--lg-thumb-edge), inset 0 -1px 2px var(--lg-in-lo), 0 8px 18px -10px rgba(0,0,0,.4);
-  transform: translateX(var(--x, 0px)); transition: transform var(--t-slow) var(--spring), width var(--t-slow) var(--spring);
+  transform: translateX(var(--x, 0px));
+  transition: transform .55s cubic-bezier(.22,.8,.24,1), width .55s cubic-bezier(.22,.8,.24,1);
 }
+/* prima fase: la goccia si allunga verso la nuova tab */
+.tb-thumb.stretch { transition-duration: .24s; transition-timing-function: cubic-bezier(.4,0,.6,1); }
 .tb-thumb::after {
   content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
   background: radial-gradient(120% 80% at 50% 0%, rgba(255,255,255,.55), transparent 55%); opacity: .6;
 }
 .tb-thumb.noanim { transition: none; }
-.tb-thumb.goo { animation: goo var(--t-slow) var(--ease); }
-@keyframes goo { 0% { scale: 1 1; } 35% { scale: 1.18 .86; } 70% { scale: .96 1.04; } 100% { scale: 1 1; } }
 
 /* ---------- Pannello dal basso ---------- */
 .scrim {

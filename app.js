@@ -442,17 +442,29 @@ $$("[data-vai]").forEach((b) => b.addEventListener("click", () => vai(b.dataset.
 $$(".page").forEach((p) => p.addEventListener("animationend", (e) => { if (e.target === p) p.classList.remove("in-r", "in-l"); }));
 window.addEventListener("popstate", () => vai(location.hash.slice(1), false));
 
-let thumbPronto = false;
-function muoviThumb(goo) {
+let thumbPronto = false, thumbT = null;
+function muoviThumb(liquido) {
   const b = $("#tabbar button.on"), t = $("#tb-thumb");
   if (!b) return;
-  if (!thumbPronto) t.classList.add("noanim");
-  t.style.width = b.offsetWidth + "px";
-  t.style.setProperty("--x", b.offsetLeft - 6 + "px");
-  if (!thumbPronto) { thumbPronto = true; requestAnimationFrame(() => requestAnimationFrame(() => t.classList.remove("noanim"))); }
-  else if (goo && !pocoMoto()) { t.classList.remove("goo"); void t.offsetWidth; t.classList.add("goo"); }
+  const x1 = b.offsetLeft - 6, w1 = b.offsetWidth;
+  clearTimeout(thumbT);
+  if (!thumbPronto || !liquido || pocoMoto()) {
+    t.classList.add("noanim"); t.classList.remove("stretch");
+    t.style.width = w1 + "px"; t.style.setProperty("--x", x1 + "px");
+    thumbPronto = true;
+    requestAnimationFrame(() => requestAnimationFrame(() => t.classList.remove("noanim")));
+    return;
+  }
+  // effetto goccia: si allunga fino a coprire la nuova tab, poi si ritira su di essa
+  const x0 = parseFloat(t.style.getPropertyValue("--x")) || 0, w0 = t.offsetWidth;
+  const sx = Math.min(x0, x1), ex = Math.max(x0 + w0, x1 + w1);
+  t.classList.add("stretch");
+  t.style.setProperty("--x", sx + "px"); t.style.width = (ex - sx) + "px";
+  thumbT = setTimeout(() => {
+    t.classList.remove("stretch");
+    t.style.setProperty("--x", x1 + "px"); t.style.width = w1 + "px";
+  }, 200);
 }
-$("#tb-thumb").addEventListener("animationend", (e) => e.target.classList.remove("goo"));
 window.addEventListener("resize", () => { muoviThumb(false); $$(".seg").forEach((s) => segSync(s, true)); });
 
 // cursore scorrevole dei controlli segmentati
