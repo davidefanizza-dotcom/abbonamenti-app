@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Abbonamenti</title>
+  <meta name="theme-color" content="#EEF1F6" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#151A24" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Abbonamenti">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icona-192.png">
+  <link rel="apple-touch-icon" href="icona-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- HOME -->
+  <main id="v-home" class="vista">
+    <header class="testata">
+      <div class="totali">
+        <div class="totale">
+          <span class="cifra" id="tot-mese">0,00 €</span>
+          <span class="dicitura">al mese</span>
+        </div>
+        <div class="totale annuo">
+          <span class="cifra" id="tot-anno">0,00 €</span>
+          <span class="dicitura">all'anno</span>
+        </div>
+      </div>
+      <button class="icona-btn" id="btn-impostazioni" aria-label="Impostazioni">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Zm8.6-2.3.1-1.2-.1-1.2 2-1.6-2-3.4-2.4.9a8 8 0 0 0-2-1.2L15.8 3h-3.9l-.4 2.5c-.7.3-1.4.7-2 1.2l-2.4-1-2 3.5 2 1.6-.1 1.2.1 1.2-2 1.6 2 3.4 2.4-.9c.6.5 1.3.9 2 1.2l.4 2.5h3.9l.4-2.5c.7-.3 1.4-.7 2-1.2l2.4.9 2-3.4-2-1.6Z"/></svg>
+      </button>
+    </header>
+
+    <p class="avviso" id="banner" hidden></p>
+
+    <ol class="lista" id="lista" aria-label="Abbonamenti per prossimo rinnovo"></ol>
+
+    <div class="vuoto" id="vuoto" hidden>
+      <p>Nessun abbonamento ancora.</p>
+      <p>Tocca + per aggiungere il primo.</p>
+    </div>
+
+    <button class="aggiungi" id="btn-aggiungi" aria-label="Aggiungi abbonamento">+</button>
+  </main>
+
+  <!-- MODULO -->
+  <section id="v-modulo" class="vista" hidden>
+    <header class="barra">
+      <button class="testo-btn" data-indietro>Annulla</button>
+      <h1 id="modulo-titolo">Nuovo abbonamento</h1>
+      <span></span>
+    </header>
+    <form id="modulo" novalidate>
+      <label>Nome
+        <input name="nome" required autocomplete="off" placeholder="Netflix">
+      </label>
+      <label>Categoria
+        <input name="categoria" list="categorie" autocomplete="off" placeholder="Streaming">
+        <datalist id="categorie"></datalist>
+      </label>
+      <div class="riga2">
+        <label>Costo (€)
+          <input name="costo" type="number" inputmode="decimal" step="0.01" min="0" required placeholder="13,99">
+        </label>
+        <label>Frequenza
+          <select name="frequenza">
+            <option value="mensile">Mensile</option>
+            <option value="annuale">Annuale</option>
+            <option value="settimanale">Settimanale</option>
+          </select>
+        </label>
+      </div>
+      <div class="riga2">
+        <label>Prossimo rinnovo
+          <input name="prossimoRinnovo" type="date" required>
+        </label>
+        <label>Preavviso (giorni)
+          <input name="preavvisoGiorni" type="number" inputmode="numeric" min="0" max="60" step="1" value="3">
+        </label>
+      </div>
+      <label class="interruttore">
+        <input name="attivo" type="checkbox" checked>
+        <span>Attivo</span>
+        <small>Se lo metti in pausa non conta nei totali e non manda avvisi.</small>
+      </label>
+      <label>Nota
+        <textarea name="nota" rows="2" placeholder="Facoltativa"></textarea>
+      </label>
+      <p class="errore" id="modulo-errore" role="alert" hidden></p>
+      <button type="submit" class="primario" id="btn-salva">Salva</button>
+      <button type="button" class="pericolo" id="btn-elimina" hidden>Elimina abbonamento</button>
+    </form>
+  </section>
+
+  <!-- IMPOSTAZIONI -->
+  <section id="v-impostazioni" class="vista" hidden>
+    <header class="barra">
+      <button class="testo-btn" data-indietro>Indietro</button>
+      <h1>Impostazioni</h1>
+      <span></span>
+    </header>
+
+    <div class="blocco">
+      <h2>Collegamento a GitHub</h2>
+      <p class="spiega">Il token resta solo su questo dispositivo. Serve accesso al repo dei dati con permessi Contents e Actions in lettura e scrittura.</p>
+      <label>Token
+        <input id="in-token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…">
+      </label>
+      <button class="primario" id="btn-token">Salva token</button>
+      <p class="esito" id="esito-token" role="status"></p>
+    </div>
+
+    <div class="blocco">
+      <h2>Notifiche</h2>
+      <p class="spiega" id="spiega-notifiche">Ricevi un avviso prima di ogni rinnovo e il giorno stesso, alle 9.</p>
+      <label>Nome di questo dispositivo
+        <input id="in-dispositivo" autocomplete="off" placeholder="iPhone">
+      </label>
+      <button class="primario" id="btn-notifiche">Attiva notifiche su questo dispositivo</button>
+      <button class="secondario" id="btn-prova">Invia notifica di prova</button>
+      <p class="esito" id="esito-notifiche" role="status"></p>
+      <h3>Dispositivi registrati</h3>
+      <ul class="dispositivi" id="dispositivi"></ul>
+    </div>
+  </section>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
