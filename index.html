@@ -19,94 +19,114 @@
 </head>
 <body>
 
+<main class="wrap">
+
   <!-- HOME -->
-  <main id="v-home" class="vista">
-    <header class="testata">
-      <div class="totali">
-        <div class="totale">
-          <span class="cifra" id="tot-mese">0,00 €</span>
-          <span class="dicitura">al mese</span>
-        </div>
-        <div class="totale annuo">
-          <span class="cifra" id="tot-anno">0,00 €</span>
-          <span class="dicitura">all'anno</span>
-        </div>
+  <section class="page" id="p-home" data-tab="home">
+    <header class="ph">
+      <div><p class="eyebrow" id="saluto">Buongiorno</p><h1>I tuoi abbonamenti</h1></div>
+      <div class="ph-acts">
+        <span class="sync" id="sync"><i></i><span>Caricamento…</span></span>
+        <button class="lg round" id="btn-aggiorna" aria-label="Aggiorna"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg></button>
       </div>
-      <button class="icona-btn" id="btn-impostazioni" aria-label="Impostazioni">
-        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Zm8.6-2.3.1-1.2-.1-1.2 2-1.6-2-3.4-2.4.9a8 8 0 0 0-2-1.2L15.8 3h-3.9l-.4 2.5c-.7.3-1.4.7-2 1.2l-2.4-1-2 3.5 2 1.6-.1 1.2.1 1.2-2 1.6 2 3.4 2.4-.9c.6.5 1.3.9 2 1.2l.4 2.5h3.9l.4-2.5c.7-.3 1.4-.7 2-1.2l2.4.9 2-3.4-2-1.6Z"/></svg>
-      </button>
     </header>
 
     <p class="avviso" id="banner" hidden></p>
 
-    <ol class="lista" id="lista" aria-label="Abbonamenti per prossimo rinnovo"></ol>
+    <section class="card hero">
+      <div class="hero-main">
+        <span class="lbl">Spesa mensile</span>
+        <span class="cifra" id="tot-mese">0,00 €</span>
+      </div>
+      <div class="hero-side">
+        <div><b class="num" id="tot-anno">0 €</b><span>all'anno</span></div>
+        <div><b class="num" id="tot-giorno">0 €</b><span>al giorno</span></div>
+        <div><b class="num" id="tot-attivi">0</b><span>attivi</span></div>
+      </div>
+    </section>
 
-    <div class="vuoto" id="vuoto" hidden>
-      <p>Nessun abbonamento ancora.</p>
-      <p>Tocca + per aggiungere il primo.</p>
+    <section class="card next" id="next" hidden></section>
+
+    <section class="card">
+      <div class="sec-h"><h2>In arrivo <small id="arrivo-info"></small></h2><button class="link" data-vai="calendario">Calendario</button></div>
+      <ol class="lista" id="arrivo"></ol>
+    </section>
+
+    <section class="card">
+      <div class="sec-h"><h2>Per categoria <small>al mese</small></h2><button class="link" data-vai="statistiche">Statistiche</button></div>
+      <div class="cats" id="cats"></div>
+    </section>
+  </section>
+
+  <!-- ABBONAMENTI -->
+  <section class="page" id="p-lista" data-tab="lista">
+    <header class="ph"><div><p class="eyebrow" id="lista-info"></p><h1>Abbonamenti</h1></div></header>
+    <div class="search lg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" placeholder="Cerca nome, categoria, nota…" autocomplete="off" enterkeyhint="search"></div>
+    <div class="ctrl">
+      <div class="seg lg" id="seg-stato">
+        <button data-v="tutti" class="on">Tutti <span class="n"></span></button>
+        <button data-v="attivi">Attivi <span class="n"></span></button>
+        <button data-v="pausa">In pausa <span class="n"></span></button>
+      </div>
+      <div class="seg lg mini" id="seg-ordine">
+        <button data-v="rinnovo" class="on">Data</button>
+        <button data-v="costo">Costo</button>
+        <button data-v="nome">A–Z</button>
+      </div>
     </div>
+    <ol class="lista" id="lista"></ol>
+    <div class="vuoto card" id="vuoto" hidden></div>
+  </section>
 
-    <button class="aggiungi" id="btn-aggiungi" aria-label="Aggiungi abbonamento">+</button>
-  </main>
+  <!-- CALENDARIO -->
+  <section class="page" id="p-calendario" data-tab="calendario">
+    <header class="ph"><div><p class="eyebrow" id="cal-info"></p><h1>Calendario</h1></div></header>
+    <section class="card">
+      <div class="cal-h">
+        <button class="lg round" id="cal-prev" aria-label="Mese precedente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 6-6 6 6 6"/></svg></button>
+        <h2 id="cal-titolo"></h2>
+        <button class="lg pillbtn" id="cal-oggi">Oggi</button>
+        <button class="lg round" id="cal-next" aria-label="Mese successivo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></button>
+      </div>
+      <div class="cal" id="cal"></div>
+    </section>
+    <section class="card">
+      <div class="sec-h"><h2 id="cal-lista-t"></h2><button class="link" id="cal-tutto" hidden>Tutto il mese</button></div>
+      <ol class="lista" id="cal-lista"></ol>
+    </section>
+  </section>
 
-  <!-- MODULO -->
-  <section id="v-modulo" class="vista" hidden>
-    <header class="barra">
-      <button class="testo-btn" data-indietro>Annulla</button>
-      <h1 id="modulo-titolo">Nuovo abbonamento</h1>
-      <span></span>
-    </header>
-    <form id="modulo" novalidate>
-      <label>Nome
-        <input name="nome" required autocomplete="off" placeholder="Netflix">
-      </label>
-      <label>Categoria
-        <input name="categoria" list="categorie" autocomplete="off" placeholder="Streaming">
-        <datalist id="categorie"></datalist>
-      </label>
-      <div class="riga2">
-        <label>Costo (€)
-          <input name="costo" type="number" inputmode="decimal" step="0.01" min="0" required placeholder="13,99">
-        </label>
-        <label>Frequenza
-          <select name="frequenza">
-            <option value="mensile">Mensile</option>
-            <option value="annuale">Annuale</option>
-            <option value="settimanale">Settimanale</option>
-          </select>
-        </label>
-      </div>
-      <div class="riga2">
-        <label>Prossimo rinnovo
-          <input name="prossimoRinnovo" type="date" required>
-        </label>
-        <label>Preavviso (giorni)
-          <input name="preavvisoGiorni" type="number" inputmode="numeric" min="0" max="60" step="1" value="3">
-        </label>
-      </div>
-      <label class="interruttore">
-        <input name="attivo" type="checkbox" checked>
-        <span>Attivo</span>
-        <small>Se lo metti in pausa non conta nei totali e non manda avvisi.</small>
-      </label>
-      <label>Nota
-        <textarea name="nota" rows="2" placeholder="Facoltativa"></textarea>
-      </label>
-      <p class="errore" id="modulo-errore" role="alert" hidden></p>
-      <button type="submit" class="primario" id="btn-salva">Salva</button>
-      <button type="button" class="pericolo" id="btn-elimina" hidden>Elimina abbonamento</button>
-    </form>
+  <!-- STATISTICHE -->
+  <section class="page" id="p-statistiche" data-tab="statistiche">
+    <header class="ph"><div><p class="eyebrow">Dove vanno i soldi</p><h1>Statistiche</h1></div></header>
+    <div class="kpis" id="kpis"></div>
+    <section class="card chartbox">
+      <div class="sec-h"><h2>Addebiti nei prossimi 12 mesi <small id="chart-tot"></small></h2></div>
+      <div id="chart"></div>
+      <div class="tip" id="tip"></div>
+    </section>
+    <section class="card">
+      <div class="sec-h"><h2>Categorie</h2></div>
+      <div class="donut-wrap" id="donut"></div>
+    </section>
+    <section class="card">
+      <div class="sec-h"><h2>I più costosi <small>quota mensile</small></h2></div>
+      <ol class="top" id="top"></ol>
+    </section>
   </section>
 
   <!-- IMPOSTAZIONI -->
-  <section id="v-impostazioni" class="vista" hidden>
-    <header class="barra">
-      <button class="testo-btn" data-indietro>Indietro</button>
-      <h1>Impostazioni</h1>
-      <span></span>
-    </header>
+  <section class="page" id="p-impostazioni" data-tab="impostazioni">
+    <header class="ph"><div><p class="eyebrow">Preferenze e collegamenti</p><h1>Impostazioni</h1></div></header>
 
-    <div class="blocco">
+    <div class="blocco card">
+      <h2>Aspetto</h2>
+      <div class="set-row"><span>Tema</span>
+        <div class="seg lg mini" id="seg-tema"><button data-v="light">Chiaro</button><button data-v="dark">Scuro</button><button data-v="">Auto</button></div>
+      </div>
+    </div>
+
+    <div class="blocco card">
       <h2>Collegamento a GitHub</h2>
       <p class="spiega">Il token resta solo su questo dispositivo. Serve accesso al repo dei dati con permessi Contents e Actions in lettura e scrittura.</p>
       <label>Token
@@ -116,7 +136,7 @@
       <p class="esito" id="esito-token" role="status"></p>
     </div>
 
-    <div class="blocco">
+    <div class="blocco card">
       <h2>Notifiche</h2>
       <p class="spiega" id="spiega-notifiche">Ricevi un avviso prima di ogni rinnovo e il giorno stesso, alle 9.</p>
       <label>Nome di questo dispositivo
@@ -128,9 +148,81 @@
       <h3>Dispositivi registrati</h3>
       <ul class="dispositivi" id="dispositivi"></ul>
     </div>
+
+    <div class="blocco card">
+      <h2>Dati</h2>
+      <div class="set-row"><span>Esporta gli abbonamenti in un file CSV apribile con Excel</span><button class="secondario sm" id="btn-csv">Esporta</button></div>
+    </div>
   </section>
 
-  <script src="config.js"></script>
-  <script src="app.js"></script>
+</main>
+
+<button class="fab" id="btn-aggiungi" aria-label="Aggiungi abbonamento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg></button>
+
+<nav class="tabbar lg" id="tabbar" aria-label="Sezioni">
+  <i class="tb-thumb" id="tb-thumb"></i>
+  <button data-tab="home" aria-label="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9Z"/></svg><span>Home</span></button>
+  <button data-tab="lista" aria-label="Abbonamenti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18M7 14h4"/></svg><span>Elenco</span></button>
+  <button data-tab="calendario" aria-label="Calendario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Calendario</span></button>
+  <button data-tab="statistiche" aria-label="Statistiche"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Statistiche</span></button>
+  <button data-tab="impostazioni" aria-label="Impostazioni"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg><span>Impostazioni</span></button>
+</nav>
+
+<!-- MODULO (pannello dal basso) -->
+<div class="scrim" id="scrim"></div>
+<section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="modulo-titolo" aria-hidden="true">
+  <div class="grab" id="grab"><i></i></div>
+  <header class="sheet-h">
+    <button type="button" class="lg pillbtn" data-chiudi>Annulla</button>
+    <h1 id="modulo-titolo">Nuovo abbonamento</h1>
+    <span></span>
+  </header>
+  <form id="modulo" novalidate>
+    <label>Nome
+      <input name="nome" required autocomplete="off" placeholder="Netflix">
+    </label>
+    <label>Categoria
+      <input name="categoria" list="categorie" autocomplete="off" placeholder="Streaming">
+      <datalist id="categorie"></datalist>
+    </label>
+    <div class="riga2">
+      <label>Costo (€)
+        <input name="costo" type="number" inputmode="decimal" step="0.01" min="0" required placeholder="13,99">
+      </label>
+      <label>Frequenza
+        <select name="frequenza">
+          <option value="mensile">Mensile</option>
+          <option value="annuale">Annuale</option>
+          <option value="settimanale">Settimanale</option>
+        </select>
+      </label>
+    </div>
+    <p class="equiv" id="equiv"></p>
+    <div class="riga2">
+      <label>Prossimo rinnovo
+        <input name="prossimoRinnovo" type="date" required>
+      </label>
+      <label>Preavviso (giorni)
+        <input name="preavvisoGiorni" type="number" inputmode="numeric" min="0" max="60" step="1" value="3">
+      </label>
+    </div>
+    <label class="interruttore">
+      <input name="attivo" type="checkbox" checked>
+      <span>Attivo</span>
+      <small>Se lo metti in pausa non conta nei totali e non manda avvisi.</small>
+    </label>
+    <label>Nota
+      <textarea name="nota" rows="2" placeholder="Facoltativa"></textarea>
+    </label>
+    <p class="errore" id="modulo-errore" role="alert" hidden></p>
+    <button type="submit" class="primario" id="btn-salva">Salva</button>
+    <button type="button" class="pericolo" id="btn-elimina" hidden>Elimina abbonamento</button>
+  </form>
+</section>
+
+<div class="toasts" id="toasts"></div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
