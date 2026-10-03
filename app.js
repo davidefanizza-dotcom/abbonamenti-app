@@ -194,7 +194,7 @@ function voceHTML(a, data = a.prossimoRinnovo, i = 0) {
   const g = giorniDa(oggiISO(), data);
   const [, m, d] = data.split("-").map(Number);
   const cat = [a.categoria, FREQ[a.frequenza]].filter(Boolean).join(" · ");
-  return `<li style="--i:${i}"><button class="voce ${classeVoce(a, data)}" data-id="${esc(a.id)}"
+  return `<li style="--i:${i}" class="${a.id === stato.nuovo ? "nuova" : ""}"><button class="voce ${classeVoce(a, data)}" data-id="${esc(a.id)}"
     aria-label="${esc(a.nome)}, ${eur.format(a.costo)} ${FREQ[a.frequenza]}, ${a.attivo ? "rinnovo " + quando(g) : "in pausa"}">
     <span class="talloncino" aria-hidden="true"><span class="giorno">${d}</span><span class="mese">${MESI[m - 1]}</span></span>
     <span style="min-width:0"><span class="nome">${esc(a.nome)}</span><span class="dettaglio"><i style="--c:${coloreCat(nomeCat(a))}"></i>${esc(cat)}</span></span>
@@ -611,8 +611,9 @@ form.addEventListener("submit", async (ev) => {
     }, `${vecchio ? "Modifica" : "Aggiunge"} ${nome}`);
     localStorage.setItem(LS.cache, JSON.stringify(stato.abbonamenti));
     chiudiModulo();
-    stato.animare.add(stato.tab);
-    disegna();
+    // si anima solo la voce nuova, il resto della lista resta fermo
+    stato.nuovo = record.id;
+    setTimeout(() => { disegna(); setTimeout(() => { stato.nuovo = null; }, 100); }, 250);
     toast(vecchio ? "Modifiche salvate" : `${nome} aggiunto`);
   } catch (e) {
     mostraErrore(e.message);
