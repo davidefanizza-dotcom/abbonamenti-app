@@ -418,28 +418,42 @@ function disegnaStat(anima) {
 }
 
 /* ---------- Tab e navigazione ---------- */
+let navT = null;
 function vai(tab, storia = true) {
   if (!TABS.includes(tab)) tab = "home";
   if (tab === stato.tab) { window.scrollTo({ top: 0, behavior: pocoMoto() ? "auto" : "smooth" }); return; }
-  const dir = stato.tab ? (TABS.indexOf(tab) > TABS.indexOf(stato.tab) ? "in-r" : "in-l") : "";
+  const avanti = stato.tab ? TABS.indexOf(tab) > TABS.indexOf(stato.tab) : true;
+  const prima = stato.tab ? $(`#p-${stato.tab}`) : null;
   stato.tab = tab;
   stato.animare.add(tab);
-  $$(".page").forEach((p) => p.classList.remove("on", "in-r", "in-l"));
-  const p = $(`#p-${tab}`);
-  p.classList.add("on");
-  if (dir && !pocoMoto()) p.classList.add(dir);
   $$("#tabbar button").forEach((b) => { const on = b.dataset.tab === tab; b.classList.toggle("on", on); b.setAttribute("aria-current", on ? "page" : "false"); });
   muoviThumb(true);
   $("#btn-aggiungi").classList.toggle("via", tab === "impostazioni");
-  window.scrollTo(0, 0);
   try { history[storia ? "pushState" : "replaceState"](null, "", "#" + tab); } catch {}
-  if (tab === "impostazioni") preparaImpostazioni();
-  disegna();
-  requestAnimationFrame(() => $$(".seg").forEach((s) => segSync(s, true)));
+
+  // la pagina attuale scivola via, poi entra la nuova con gli elementi a cascata
+  const mostra = () => {
+    navT = null;
+    $$(".page").forEach((x) => x.classList.remove("on", "in-r", "in-l", "out-r", "out-l"));
+    const p = $(`#p-${tab}`);
+    p.classList.add("on");
+    if (prima && !pocoMoto()) { void p.offsetWidth; p.classList.add(avanti ? "in-r" : "in-l"); }
+    window.scrollTo(0, 0);
+    if (tab === "impostazioni") preparaImpostazioni();
+    disegna();
+    requestAnimationFrame(() => $$(".seg").forEach((s) => segSync(s, true)));
+  };
+  clearTimeout(navT);
+  if (prima && prima.classList.contains("on") && !pocoMoto()) {
+    $$(".page").forEach((x) => { if (x !== prima) x.classList.remove("on"); });
+    prima.classList.remove("in-r", "in-l", "out-r", "out-l");
+    void prima.offsetWidth;
+    prima.classList.add(avanti ? "out-l" : "out-r");
+    navT = setTimeout(mostra, 170);
+  } else mostra();
 }
 $$("#tabbar button").forEach((b) => b.addEventListener("click", () => vai(b.dataset.tab)));
 $$("[data-vai]").forEach((b) => b.addEventListener("click", () => vai(b.dataset.vai)));
-$$(".page").forEach((p) => p.addEventListener("animationend", (e) => { if (e.target === p) p.classList.remove("in-r", "in-l"); }));
 window.addEventListener("popstate", () => vai(location.hash.slice(1), false));
 
 let thumbPronto = false, thumbT = null;

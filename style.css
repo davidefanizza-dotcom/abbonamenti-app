@@ -105,8 +105,13 @@ button.lg:active { transform: scale(.92); }
 /* ---------- Intestazioni pagina ---------- */
 .page { display: none; flex-direction: column; gap: 16px; }
 .page.on { display: flex; }
-.page.in-r { animation: inR var(--t-slow) var(--ease) both; }
-.page.in-l { animation: inL var(--t-slow) var(--ease) both; }
+/* transizione tra pagine: uscita rapida, entrata a cascata */
+.page.out-l { animation: outL .17s var(--ease-in) both; pointer-events: none; }
+.page.out-r { animation: outR .17s var(--ease-in) both; pointer-events: none; }
+.page.in-r > * { animation: inR .52s var(--ease) both; animation-delay: calc(var(--k, 6) * 45ms); }
+.page.in-l > * { animation: inL .52s var(--ease) both; animation-delay: calc(var(--k, 6) * 45ms); }
+.page > :nth-child(1) { --k: 0; } .page > :nth-child(2) { --k: 1; } .page > :nth-child(3) { --k: 2; }
+.page > :nth-child(4) { --k: 3; } .page > :nth-child(5) { --k: 4; } .page > :nth-child(6) { --k: 5; }
 .ph { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding: 14px 4px 2px; }
 .ph h1 { font-size: clamp(30px, 8.5vw, 40px); font-weight: 200; margin: 0; line-height: 1.05; }
 .eyebrow { margin: 0 0 4px; color: var(--muted); font-size: .85rem; }
@@ -481,8 +486,10 @@ body.dim .wrap, body.dim .tabbar, body.dim .fab { filter: blur(6px); transition:
 /* ---------- Animazioni ---------- */
 @keyframes rise { from { opacity: 0; transform: translateY(18px) scale(.985); } to { opacity: 1; transform: none; } }
 @keyframes rowIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-@keyframes inR { from { opacity: 0; transform: translateX(24px); filter: blur(6px); } 60% { filter: blur(0); } to { opacity: 1; transform: none; filter: none; } }
-@keyframes inL { from { opacity: 0; transform: translateX(-24px); filter: blur(6px); } 60% { filter: blur(0); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes inR { from { opacity: 0; transform: translateX(28px) scale(.98); filter: blur(4px); } 55% { filter: blur(0); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes inL { from { opacity: 0; transform: translateX(-28px) scale(.98); filter: blur(4px); } 55% { filter: blur(0); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes outL { to { opacity: 0; transform: translateX(-18px) scale(.985); filter: blur(3px); } }
+@keyframes outR { to { opacity: 0; transform: translateX(18px) scale(.985); filter: blur(3px); } }
 @keyframes fabIn { from { opacity: 0; transform: translateY(30px) scale(.6); } to { opacity: 1; transform: none; } }
 @keyframes barIn { from { opacity: 0; transform: translate(-50%, 40px); } to { opacity: 1; transform: translate(-50%, 0); } }
 @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.8); } }
