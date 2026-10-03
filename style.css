@@ -53,7 +53,7 @@
 html, body { margin: 0; }
 html { min-height: 100%; overflow-x: hidden; }
 body {
-  color: var(--text); font: 16px/1.5 var(--body); -webkit-font-smoothing: antialiased;
+  color: var(--text); font: 16px/1.5 var(--body); -webkit-font-smoothing: antialiased; touch-action: manipulation;
   min-height: 100vh; background: var(--bg2);
   padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
 }
@@ -471,6 +471,9 @@ button:disabled { opacity: .45; cursor: default; }
 }
 .sheet.on { transform: translate(-50%, var(--dy, 0px)); visibility: visible; transition: transform .62s var(--sheet-in), opacity .5s var(--sheet-in), visibility 0s; }
 .sheet.drag { transition: none; }
+body.bloccato { position: fixed; left: 0; right: 0; overflow: hidden; }
+.sheet { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-y; }
+.scrim { touch-action: none; }
 @media (min-width: 700px) { .sheet { bottom: 50%; border-radius: 28px; border-bottom: 1px solid var(--glass-b); transform: translate(-50%, 60%) scale(.96); opacity: 0; } .sheet.on { transform: translate(-50%, 50%); opacity: 1; } .grab { display: none !important; } }
 .grab { display: flex; justify-content: center; padding: 10px 0 4px; cursor: grab; touch-action: none; position: sticky; top: 0; }
 .grab i { width: 40px; height: 5px; border-radius: 9px; background: color-mix(in srgb, var(--text) 25%, transparent); }

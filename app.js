@@ -534,15 +534,35 @@ function apriModulo(a) {
   if (solaLettura) mostraErrore("Senza connessione non puoi modificare.");
   aggiornaEquiv();
   sheet.style.removeProperty("--dy");
+  bloccaSfondo(true);
   sheet.classList.add("on"); sheet.setAttribute("aria-hidden", "false");
   $("#scrim").classList.add("on"); document.body.classList.add("dim");
   sheet.scrollTop = 0;
   if (!a && matchMedia("(hover: hover)").matches) setTimeout(() => form.elements.nome.focus(), 250);
 }
 function chiudiModulo() {
+  if (!sheet.classList.contains("on")) return;
+  document.activeElement?.blur?.();
   sheet.classList.remove("on", "drag"); sheet.setAttribute("aria-hidden", "true"); sheet.style.removeProperty("--dy");
   $("#scrim").classList.remove("on"); document.body.classList.remove("dim");
-  document.activeElement?.blur?.();
+  bloccaSfondo(false);
+}
+// Su iPhone la pagina dietro il pannello scorreva insieme al dito: la blocco dov'è e la rimetto lì alla chiusura.
+let scrollSalvato = 0;
+function bloccaSfondo(blocca) {
+  const b = document.body, w = $(".wrap");
+  if (blocca) {
+    if (b.classList.contains("bloccato")) return;
+    scrollSalvato = window.scrollY;
+    w.style.transformOrigin = `50% ${scrollSalvato + innerHeight * 0.35}px`;
+    b.style.top = `-${scrollSalvato}px`;
+    b.classList.add("bloccato");
+  } else {
+    if (!b.classList.contains("bloccato")) return;
+    b.classList.remove("bloccato");
+    b.style.top = "";
+    window.scrollTo(0, scrollSalvato);
+  }
 }
 $$("[data-chiudi]").forEach((b) => b.addEventListener("click", chiudiModulo));
 $("#scrim").addEventListener("click", chiudiModulo);
