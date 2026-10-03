@@ -1,5 +1,5 @@
-const CACHE = "abbonamenti-v16";
-const FILE = ["./", "./index.html", "./style.css", "./app.js", "./moduli.js", "./config.js", "./manifest.json", "./icona-192.png", "./icona-180.png"];
+const CACHE = "abbonamenti-v17";
+const FILE = ["./", "./index.html", "./style.css", "./app.js", "./moduli.js", "./finanze.js", "./config.js", "./manifest.json", "./icona-192.png", "./icona-180.png"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILE)));

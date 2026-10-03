@@ -10,11 +10,11 @@ const eur = new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" 
 const eur0 = new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
 const MESI = ["gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ott", "nov", "dic"];
 const FREQ = { mensile: "mensile", annuale: "annuale", settimanale: "settimanale" };
-const TABS = ["home", "lista", "statistiche", "attivita", "abitudini", "obiettivi", "note", "calendario", "impostazioni"];
+const TABS = ["home", "finanze", "lista", "statistiche", "attivita", "abitudini", "obiettivi", "note", "calendario", "impostazioni"];
 // sezioni sempre visibili nella barra in basso del telefono; le altre stanno nel menu "Altro"
-const TABS_BARRA = ["home", "lista", "attivita", "calendario"];
+const TABS_BARRA = ["home", "finanze", "lista", "calendario"];
 // registri riempiti anche da moduli.js
-const RENDER = {}, AGGIUNGI = {}, DOPO_RENDER = [];
+const RENDER = {}, AGGIUNGI = {}, DOPO_RENDER = [], DOPO_CARICA = [];
 
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
@@ -166,7 +166,14 @@ function messaggioErrore(status) {
 
 async function leggi(file) {
   const j = await gh(`/contents/${file}`);
-  return { dati: JSON.parse(b64dec(j.content)), sha: j.sha };
+  // oltre 1 MB GitHub non include il contenuto nella risposta: lo scarico a parte
+  let testo = j.content ? b64dec(j.content) : null;
+  if (testo == null) {
+    const r = await fetch(API + `/contents/${file}`, { cache: "no-store", headers: { Authorization: `Bearer ${token()}`, Accept: "application/vnd.github.raw" } });
+    if (!r.ok) { const e = new Error(messaggioErrore(r.status)); e.status = r.status; throw e; }
+    testo = await r.text();
+  }
+  return { dati: JSON.parse(testo), sha: j.sha };
 }
 
 // Rilegge sempre il file prima di scrivere, così PC e iPhone non si sovrascrivono.
@@ -212,6 +219,7 @@ async function carica() {
     localStorage.setItem(LS.cache, JSON.stringify(dati));
     mostraBanner("");
     await caricaModuli();
+    DOPO_CARICA.forEach((f) => f());
     setSync("live", "Sincronizzato");
   } catch (e) {
     stato.online = false;

@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500&family=Urbanist:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=16">
+  <link rel="stylesheet" href="style.css?v=17">
 </head>
 <body>
 
@@ -59,6 +59,11 @@
       <ol class="lista" id="arrivo"></ol>
     </section>
 
+    <section class="card c-fin" id="c-fin" hidden>
+      <div class="sec-h"><h2>Finanze <small>questo mese</small></h2><button class="link" data-vai="finanze">Apri</button></div>
+      <div id="fin-home"></div>
+    </section>
+
     <section class="card c-oggi" id="c-oggi">
       <div class="sec-h"><h2>Oggi <small id="oggi-info"></small></h2><button class="link" data-vai="attivita">Attività</button></div>
       <div id="oggi-box"></div>
@@ -68,6 +73,18 @@
       <div class="sec-h"><h2>Per categoria <small>al mese</small></h2><button class="link" data-vai="statistiche">Statistiche</button></div>
       <div class="cats" id="cats"></div>
     </section>
+  </section>
+
+
+  <!-- FINANZE -->
+  <section class="page" id="p-finanze" data-tab="finanze">
+    <header class="ph"><div><p class="eyebrow">Conti, movimenti e risparmi</p><h1>Finanze</h1></div>
+      <div class="mese-nav" id="fin-mese"><button class="lg round" id="fin-prev" aria-label="Periodo precedente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 6-6 6 6 6"/></svg></button><button class="lg pillbtn" id="fin-periodo" title="Torna al mese corrente"></button><button class="lg round" id="fin-next" aria-label="Periodo successivo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></button></div>
+    </header>
+    <div class="seg lg seg-scroll" id="seg-fin">
+      <button data-v="panoramica" class="on">Panoramica</button><button data-v="movimenti">Movimenti</button><button data-v="salvadanaio">Salvadanaio</button><button data-v="fisse">Spese fisse</button><button data-v="conti">Conti</button>
+    </div>
+    <div class="fin-corpo" id="fin-corpo"></div>
   </section>
 
   <!-- ABBONAMENTI -->
@@ -232,11 +249,13 @@
   <i class="tb-thumb" id="tb-thumb"></i>
   <div class="tb-brand"><img src="icona-192.png" alt=""><span>Abbonamenti</span></div>
   <button data-tab="home" aria-label="Home" class="m"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9Z"/></svg><span>Home</span></button>
+  <p class="tb-gr">Soldi</p>
+  <button data-tab="finanze" aria-label="Finanze" class="m"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="6" width="19" height="13" rx="3"/><path d="M2.5 10h19M16 14.5h2"/><path d="M6 6V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1"/></svg><span>Finanze</span></button>
   <p class="tb-gr">Abbonamenti</p>
   <button data-tab="lista" aria-label="Abbonamenti" class="m"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18M7 14h4"/></svg><span>Abbonamenti</span></button>
   <button data-tab="statistiche" aria-label="Statistiche" class=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Statistiche</span></button>
   <p class="tb-gr">Personale</p>
-  <button data-tab="attivita" aria-label="Attività" class="m"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m4 7 2 2 4-4M4 17l2 2 4-4M13 7h7M13 17h7"/></svg><span>Attività</span><em class="tcnt" data-cnt="attivita"></em></button>
+  <button data-tab="attivita" aria-label="Attività" class=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m4 7 2 2 4-4M4 17l2 2 4-4M13 7h7M13 17h7"/></svg><span>Attività</span><em class="tcnt" data-cnt="attivita"></em></button>
   <button data-tab="abitudini" aria-label="Abitudini" class=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/><path d="m9 12 2 2 4-4"/></svg><span>Abitudini</span><em class="tcnt" data-cnt="abitudini"></em></button>
   <button data-tab="obiettivi" aria-label="Obiettivi" class=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg><span>Obiettivi</span><em class="tcnt" data-cnt="obiettivi"></em></button>
   <button data-tab="note" aria-label="Note" class=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3h10l4 4v14H5z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg><span>Note</span><em class="tcnt" data-cnt="note"></em></button>
@@ -250,6 +269,7 @@
 </nav>
 
 <div class="altro-pop lg" id="altro-pop" hidden>
+  <button data-tab="attivita"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m4 7 2 2 4-4M4 17l2 2 4-4M13 7h7M13 17h7"/></svg><span>Attività</span><em class="tcnt" data-cnt="attivita"></em></button>
   <button data-tab="statistiche"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Statistiche</span></button>
   <button data-tab="abitudini"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/><path d="m9 12 2 2 4-4"/></svg><span>Abitudini</span><em class="tcnt" data-cnt="abitudini"></em></button>
   <button data-tab="obiettivi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg><span>Obiettivi</span><em class="tcnt" data-cnt="obiettivi"></em></button>
@@ -309,10 +329,22 @@
   </form>
 </section>
 
+
+<section class="sheet" id="sheet-fin" role="dialog" aria-modal="true" aria-labelledby="fin-titolo" aria-hidden="true">
+  <div class="grab"><i></i></div>
+  <header class="sheet-h">
+    <button type="button" class="lg pillbtn" id="fin-chiudi">Annulla</button>
+    <h1 id="fin-titolo">Movimento</h1>
+    <button type="submit" form="fin-form" class="lg pillbtn salva-h">Salva</button>
+  </header>
+  <form id="fin-form" novalidate></form>
+</section>
+
 <div class="toasts" id="toasts"></div>
 
-<script src="config.js?v=16"></script>
-<script src="app.js?v=16"></script>
-<script src="moduli.js?v=16"></script>
+<script src="config.js?v=17"></script>
+<script src="app.js?v=17"></script>
+<script src="moduli.js?v=17"></script>
+<script src="finanze.js?v=17"></script>
 </body>
 </html>
