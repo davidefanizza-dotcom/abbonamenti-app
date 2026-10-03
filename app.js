@@ -11,7 +11,7 @@ const MESI = ["gen", "feb", "mar", "apr", "mag", "giu", "lug", "ago", "set", "ot
 const FREQ = { mensile: "mensile", annuale: "annuale", settimanale: "settimanale" };
 
 const $ = (s) => document.querySelector(s);
-const stato = { abbonamenti: [], online: false, inModifica: null };
+const stato = { abbonamenti: [], online: false, inModifica: null, animaLista: true };
 
 /* ---------- Date ---------- */
 const pad = (n) => String(n).padStart(2, "0");
@@ -136,10 +136,14 @@ function disegnaHome() {
 
   const lista = $("#lista");
   lista.innerHTML = "";
-  for (const a of ordinati) {
+  // La cascata d'ingresso parte solo quando si apre la home, non a ogni ridisegno.
+  lista.classList.toggle("still", !stato.animaLista);
+  stato.animaLista = false;
+  for (const [i, a] of ordinati.entries()) {
     const g = giorniDa(oggi, a.prossimoRinnovo);
     const [, m, d] = a.prossimoRinnovo.split("-").map(Number);
     const li = document.createElement("li");
+    li.style.setProperty("--i", i);
     const btn = document.createElement("button");
     btn.className = "voce" + (!a.attivo ? " pausa" : g <= 0 ? " oggi" : g <= 7 ? " vicino" : "");
     btn.innerHTML = `
@@ -162,7 +166,7 @@ function apri(vista) {
   for (const v of ["home", "modulo", "impostazioni"]) $(`#v-${v}`).hidden = v !== vista;
   window.scrollTo(0, 0);
   if (vista === "impostazioni") preparaImpostazioni();
-  if (vista === "home") disegnaHome();
+  if (vista === "home") { stato.animaLista = true; disegnaHome(); }
 }
 document.querySelectorAll("[data-indietro]").forEach((b) => b.addEventListener("click", () => apri("home")));
 $("#btn-impostazioni").addEventListener("click", () => apri("impostazioni"));
