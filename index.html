@@ -4,18 +4,25 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Abbonamenti</title>
-  <meta name="theme-color" content="#eef3f1" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#142334" media="(prefers-color-scheme: dark)">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Abbonamenti">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <script>
+    // Barra di stato senza stacco: col tema scuro la pagina passa sotto l'orologio,
+    // col chiaro la barra prende il colore esatto della cima della pagina.
+    (function () {
+      var t = null; try { t = localStorage.getItem("abb_tema"); } catch (e) {}
+      var scuro = t ? t === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+      document.write('<meta name="apple-mobile-web-app-status-bar-style" content="' + (scuro ? "black-translucent" : "default") + '">' +
+        '<meta name="theme-color" id="tema-colore" content="' + (scuro ? "#0e1826" : "#dfe8ea") + '">');
+    })();
+  </script>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icona-192.png">
   <link rel="apple-touch-icon" href="icona-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500&family=Urbanist:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=12">
+  <link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
 
@@ -222,7 +229,7 @@
 
 <div class="toasts" id="toasts"></div>
 
-<script src="config.js?v=12"></script>
-<script src="app.js?v=12"></script>
+<script src="config.js?v=13"></script>
+<script src="app.js?v=13"></script>
 </body>
 </html>

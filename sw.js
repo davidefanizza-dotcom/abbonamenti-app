@@ -1,4 +1,4 @@
-const CACHE = "abbonamenti-v12";
+const CACHE = "abbonamenti-v13";
 const FILE = ["./", "./index.html", "./style.css", "./app.js", "./config.js", "./manifest.json", "./icona-192.png", "./icona-180.png"];
 
 self.addEventListener("install", (e) => {

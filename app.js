@@ -666,6 +666,8 @@ function toast(msg) {
 /* ---------- Tema ---------- */
 function applicaTema(t) {
   if (t) document.documentElement.setAttribute("data-theme", t); else document.documentElement.removeAttribute("data-theme");
+  const scuro = t ? t === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  $("#tema-colore")?.setAttribute("content", scuro ? "#0e1826" : "#dfe8ea");
   $$("#seg-tema button").forEach((b) => b.classList.toggle("on", b.dataset.v === (t || "")));
   segSync($("#seg-tema"));
 }
