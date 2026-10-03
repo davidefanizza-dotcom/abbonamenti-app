@@ -446,7 +446,7 @@ let thumbPronto = false, thumbT = null;
 function muoviThumb(liquido) {
   const b = $("#tabbar button.on"), t = $("#tb-thumb");
   if (!b) return;
-  const x1 = b.offsetLeft - 6, w1 = b.offsetWidth;
+  const x1 = b.offsetLeft, w1 = b.offsetWidth;
   clearTimeout(thumbT);
   if (!thumbPronto || !liquido || pocoMoto()) {
     t.classList.add("noanim"); t.classList.remove("stretch");
