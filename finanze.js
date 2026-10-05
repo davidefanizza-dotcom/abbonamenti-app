@@ -86,7 +86,7 @@ function generaFisse(forza) {
   const nuovi = [], aggiornate = {};
   const oggi = oggiISO();
   for (const f of dati.finanze.fisse) {
-    if (!f.attiva) continue;
+    if (!f.attiva || f.freq === "volte") continue;
     if (f.freq === "settimanale") {
       // si parte dalla settimana dopo l'ultima generata (al massimo 52 indietro), altrimenti dalla data di inizio
       let data = f.ultimo ? piuGiorni(f.ultimo, 7) : (f.inizio || oggi), ultimo = f.ultimo;
@@ -245,7 +245,10 @@ function vistaSalvadanaio(corpo) {
 const SETT = (f) => f.freq === "settimanale";
 const GIORNI_SETT = ["domenica", "lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato"];
 const giornoSett = (iso) => GIORNI_SETT[new Date(iso + "T12:00").getDay()];
-const quotaFissa = (f) => (SETT(f) ? (cent(f.amount) * 52) / 12 : cent(f.amount));
+const VOLTE = (f) => f.freq === "volte";
+const quotaFissa = (f) => (SETT(f) ? (cent(f.amount) * 52) / 12 : VOLTE(f) ? cent(f.amount) * (Number(f.volte) || 1) : cent(f.amount));
+const meseCorr = () => oggiISO().slice(0, 7);
+const fatteMese = (f) => dati.movimenti.filter((x) => x.fissa === f.id && x.data.startsWith(meseCorr())).length;
 function vistaFisse(corpo) {
   const l = [...dati.finanze.fisse].sort((a, b) => (SETT(a) - SETT(b)) || ((a.giorno || 0) - (b.giorno || 0)));
   const mese = Math.round(l.filter((f) => f.attiva).reduce((s, f) => s + (f.type === "uscita" ? -1 : 1) * quotaFissa(f), 0)) / 100;
@@ -254,8 +257,8 @@ function vistaFisse(corpo) {
       <button class="secondario sm" id="fisse-genera" ${l.length ? "" : "hidden"}>⚡ Genera ora</button><button class="primario sm" id="fisse-nuova">+ Spesa fissa</button></div>
     <ul class="fisse-l">${l.map((f, i) => { const c = contoDi(f.contoId); return `<li class="card fissa ${f.attiva ? "" : "off"}" data-id="${esc(f.id)}" style="--i:${i}">
       <span class="m-ic" style="--c:${catInfo(f.category)[1]}">${catInfo(f.category)[0]}</span>
-      <span class="m-t"><b>${esc(f.name)}</b><small>${SETT(f) ? `ogni ${giornoSett(f.inizio || oggiISO())}` : `giorno ${f.giorno}`} · ${esc(f.category)}${c ? ` · ${esc(c.name)}` : ""} · ${f.ultimo ? `ultima ${f.ultimo}` : "mai generata"}</small></span>
-      <span class="m-v ${f.type}">${eurS((f.type === "uscita" ? -1 : 1) * Number(f.amount))}${SETT(f) ? "<small>/sett.</small>" : ""}</span>
+      <span class="m-t"><b>${esc(f.name)}</b><small>${VOLTE(f) ? `<b class="fx-cont">${fatteMese(f)} di ${f.volte} questo mese</b>` : SETT(f) ? `ogni ${giornoSett(f.inizio || oggiISO())}` : `giorno ${f.giorno}`} · ${esc(f.category)}${c ? ` · ${esc(c.name)}` : ""}${VOLTE(f) ? "" : ` · ${f.ultimo ? `ultima ${f.ultimo}` : "mai generata"}`}</small>${VOLTE(f) && f.attiva ? `<button type="button" class="secondario sm fx-reg">+ Registra</button>` : ""}</span>
+      <span class="m-v ${f.type}">${eurS((f.type === "uscita" ? -1 : 1) * Number(f.amount))}${SETT(f) ? "<small>/sett.</small>" : VOLTE(f) ? "<small>/volta</small>" : ""}</span>
       <input type="checkbox" class="tgm" ${f.attiva ? "checked" : ""} aria-label="Attiva">
     </li>`; }).join("") || ""}</ul>`;
   $("#fisse-nuova").addEventListener("click", () => apriFissa(null));
@@ -264,6 +267,7 @@ function vistaFisse(corpo) {
     const id = li.dataset.id;
     li.querySelector(".tgm").addEventListener("click", (e) => e.stopPropagation());
     li.querySelector(".tgm").addEventListener("change", (e) => { op("finanze", (d) => ({ ...d, fisse: d.fisse.map((f) => f.id === id ? { ...f, attiva: e.target.checked } : f) }), "Attiva/sospende spesa fissa", false); li.classList.toggle("off", !e.target.checked); });
+    li.querySelector(".fx-reg")?.addEventListener("click", (e) => { e.stopPropagation(); registraVolta(dati.finanze.fisse.find((f) => f.id === id)); });
     li.addEventListener("click", () => apriFissa(dati.finanze.fisse.find((f) => f.id === id)));
   });
 }
@@ -432,7 +436,8 @@ function apriFissa(fx) {
     <div class="seg lg tipo-seg" id="fx-tipo"><button type="button" data-v="uscita" class="${fx?.type !== "entrata" ? "on" : ""}">Uscita</button><button type="button" data-v="entrata" class="${fx?.type === "entrata" ? "on" : ""}">Entrata</button></div>
     <label>Nome<input name="nome" required autocomplete="off" placeholder="es. Affitto" value="${esc(fx?.name || "")}"></label>
     <div class="riga2"><label>Importo (€)<input name="importo" inputmode="decimal" placeholder="650,00" value="${fx ? String(fx.amount).replace(".", ",") : ""}"></label>
-      <label>Ripetizione<select name="freq"><option value="mensile">Ogni mese</option><option value="settimanale" ${fx && SETT(fx) ? "selected" : ""}>Ogni settimana</option></select></label></div>
+      <label>Ripetizione<select name="freq"><option value="mensile">Ogni mese</option><option value="settimanale" ${fx && SETT(fx) ? "selected" : ""}>Ogni settimana</option><option value="volte" ${fx && VOLTE(fx) ? "selected" : ""}>Più volte al mese</option></select></label></div>
+    <label id="fx-g-volte">Volte al mese<input name="volte" type="number" min="1" max="31" value="${fx?.volte || 4}"><small id="fx-volte-info"></small></label>
     <label id="fx-g-mese">Giorno del mese<input name="giorno" type="number" min="1" max="31" value="${fx?.giorno || 1}"></label>
     <label id="fx-g-sett">Primo pagamento<input name="inizio" type="date" value="${fx?.inizio || oggiISO()}"><small id="fx-sett-info"></small></label>
     <div class="riga2"><label>Conto<select name="conto">${optConti(fx?.contoId || conti()[0].id)}</select></label>
@@ -446,6 +451,7 @@ function apriFissa(fx) {
     if (freq === "settimanale" && !/^\d{4}-\d{2}-\d{2}$/.test(inizio)) return "Indica la data del primo pagamento.";
     const rec = { ...(fx || {}), id: fx?.id || nuovoId(), contoId: v("conto"), name: v("nome"), amount: imp, type: $("#fx-tipo button.on").dataset.v, category: v("cat") || "Altro", giorno: g, freq, attiva: f.elements.attiva.checked };
     if (freq === "settimanale") rec.inizio = inizio; else delete rec.inizio;
+    if (freq === "volte") rec.volte = Math.min(31, Math.max(1, Number(v("volte")) || 1)); else delete rec.volte;
     // cambiando ripetizione o data di partenza si riparte da capo (i movimenti già creati restano)
     if (fx && ((fx.freq || "mensile") !== freq || (freq === "settimanale" && fx.inizio !== inizio))) delete rec.ultimo;
     op("finanze", (d) => ({ ...d, fisse: [...d.fisse.filter((x) => x.id !== rec.id), rec] }), fx ? "Modifica spesa fissa" : "Nuova spesa fissa");
@@ -461,12 +467,32 @@ function apriFissa(fx) {
   const ff = $("#fin-form");
   const sync = () => {
     const s = ff.elements.freq.value === "settimanale";
-    $("#fx-g-mese").hidden = s; $("#fx-g-sett").hidden = !s;
-    const d = ff.elements.inizio.value, imp = numero(ff.elements.importo.value);
+    const vo = ff.elements.freq.value === "volte";
+    $("#fx-g-mese").hidden = s || vo; $("#fx-g-sett").hidden = !s; $("#fx-g-volte").hidden = !vo;
+    const d = ff.elements.inizio.value, imp = numero(ff.elements.importo.value), nv = Number(ff.elements.volte.value) || 0;
+    $("#fx-volte-info").textContent = vo ? `Le date le registri tu ogni volta${imp > 0 && nv ? ` · ≈ ${eur.format(imp * nv)} al mese` : ""}` : "";
     $("#fx-sett-info").textContent = s && d ? `Ogni ${giornoSett(d)}${imp > 0 ? ` · ≈ ${eur.format((imp * 52) / 12)} al mese` : ""}` : "";
   };
-  ["freq", "inizio", "importo"].forEach((n) => ff.elements[n].addEventListener(n === "importo" ? "input" : "change", sync));
+  ["freq", "inizio", "importo", "volte"].forEach((n) => ff.elements[n].addEventListener(n === "importo" || n === "volte" ? "input" : "change", sync));
   sync();
+}
+
+function registraVolta(f) {
+  if (!stato.online) return toast(token() ? "Senza connessione non puoi modificare." : "Collega GitHub in Impostazioni per salvare.");
+  apriFin(`Registra · ${f.name}`, `
+    <p class="spiega" style="margin:0 0 4px">${fatteMese(f)} di ${f.volte} registrate questo mese</p>
+    <div class="riga2"><label>Data<input name="data" type="date" value="${oggiISO()}"></label>
+      <label>Importo (€)<input name="importo" inputmode="decimal" value="${String(f.amount).replace(".", ",")}"></label></div>
+    <label>Conto<select name="conto">${optConti(f.contoId || conti()[0].id)}</select></label>`,
+  (el) => {
+    const data = el.elements.data.value, imp = Math.round(numero(el.elements.importo.value) * 100) / 100;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) return "Scegli la data.";
+    if (!(imp > 0)) return "Inserisci un importo maggiore di zero.";
+    const mov = { id: nuovoId(), contoId: el.elements.conto.value, data, descr: f.name, importo: imp, tipo: f.type, cat: f.category, salvadanaio: false, nota: "📅 Spesa fissa", fissa: f.id };
+    op("movimenti", (d) => [...d, mov], "Registra spesa fissa");
+    toast(`${f.name} registrata`);
+    disegnaFinanze(false);
+  });
 }
 
 /* ---------- Collegamenti ---------- */

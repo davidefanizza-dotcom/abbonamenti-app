@@ -984,3 +984,7 @@ body.dim .fab { transform: scale(.6) rotate(45deg) !important; opacity: 0; point
 .m-v small { font-size: .7em; opacity: .65; margin-left: 2px; }
 #fin-form label[hidden] { display: none !important; }
 #fx-sett-info { display: block; margin-top: 4px; color: var(--muted); font-size: .8rem; }
+.fissa .fx-reg { margin-top: 6px; justify-self: start; }
+.fissa .m-t { display: flex; flex-direction: column; align-items: flex-start; }
+.fx-cont { color: var(--text, inherit); font-weight: 600; }
+#fx-volte-info { display: block; margin-top: 4px; color: var(--muted); font-size: .8rem; }
