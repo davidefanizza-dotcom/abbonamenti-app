@@ -981,3 +981,6 @@ body.dim .fab { transform: scale(.6) rotate(45deg) !important; opacity: 0; point
 .blocco .tgm, form .tgm { width: 44px; height: 26px; min-height: 0; padding: 0; border: 0; border-radius: 999px; background-color: color-mix(in srgb, var(--text) 22%, transparent); }
 .blocco .tgm:checked, form .tgm:checked { background-color: var(--ok); }
 .blocco .mini-in { width: 80px; min-height: 0; }
+.m-v small { font-size: .7em; opacity: .65; margin-left: 2px; }
+#fin-form label[hidden] { display: none !important; }
+#fx-sett-info { display: block; margin-top: 4px; color: var(--muted); font-size: .8rem; }

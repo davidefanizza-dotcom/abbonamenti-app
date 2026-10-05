@@ -84,8 +84,21 @@ function generaFisse(forza) {
   if (!stato.online || !dati.finanze.fisse.length) return 0;
   const ora = new Date(), mc = `${ora.getFullYear()}-${pad(ora.getMonth() + 1)}`;
   const nuovi = [], aggiornate = {};
+  const oggi = oggiISO();
   for (const f of dati.finanze.fisse) {
     if (!f.attiva) continue;
+    if (f.freq === "settimanale") {
+      // si parte dalla settimana dopo l'ultima generata (al massimo 52 indietro), altrimenti dalla data di inizio
+      let data = f.ultimo ? piuGiorni(f.ultimo, 7) : (f.inizio || oggi), ultimo = f.ultimo;
+      for (let n = 0; n < 52 && data <= oggi; n++) {
+        if (!dati.movimenti.some((x) => x.fissa === f.id && x.data === data)) {
+          nuovi.push({ id: nuovoId(), contoId: f.contoId, data, descr: f.name, importo: f.amount, tipo: f.type, cat: f.category, salvadanaio: false, nota: "📅 Spesa fissa automatica", fissa: f.id });
+        }
+        ultimo = data; data = piuGiorni(data, 7);
+      }
+      if (ultimo !== f.ultimo) aggiornate[f.id] = ultimo;
+      continue;
+    }
     // si parte dal mese dopo l'ultimo generato (al massimo 12 mesi indietro), altrimenti da questo mese
     let [y, m] = (f.ultimo || mc).split("-").map(Number);
     if (f.ultimo) m += 1;
@@ -229,16 +242,20 @@ function vistaSalvadanaio(corpo) {
   collegaMov(corpo);
 }
 
+const SETT = (f) => f.freq === "settimanale";
+const GIORNI_SETT = ["domenica", "lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato"];
+const giornoSett = (iso) => GIORNI_SETT[new Date(iso + "T12:00").getDay()];
+const quotaFissa = (f) => (SETT(f) ? (cent(f.amount) * 52) / 12 : cent(f.amount));
 function vistaFisse(corpo) {
-  const l = [...dati.finanze.fisse].sort((a, b) => a.giorno - b.giorno);
-  const mese = l.filter((f) => f.attiva).reduce((s, f) => s + (f.type === "uscita" ? -1 : 1) * cent(f.amount), 0) / 100;
+  const l = [...dati.finanze.fisse].sort((a, b) => (SETT(a) - SETT(b)) || ((a.giorno || 0) - (b.giorno || 0)));
+  const mese = Math.round(l.filter((f) => f.attiva).reduce((s, f) => s + (f.type === "uscita" ? -1 : 1) * quotaFissa(f), 0)) / 100;
   corpo.innerHTML = `
-    <div class="fin-azioni"><span class="spiega">${l.length ? `${plurale(l.filter((f) => f.attiva).length, "attiva", "attive")} · ${eurS(mese)} al mese` : "Affitto, rate, bollette: vengono registrate da sole ogni mese."}</span><span class="spacer"></span>
+    <div class="fin-azioni"><span class="spiega">${l.length ? `${plurale(l.filter((f) => f.attiva).length, "attiva", "attive")} · ${eurS(mese)} al mese` : "Affitto, rate, bollette, spese settimanali: vengono registrate da sole."}</span><span class="spacer"></span>
       <button class="secondario sm" id="fisse-genera" ${l.length ? "" : "hidden"}>⚡ Genera ora</button><button class="primario sm" id="fisse-nuova">+ Spesa fissa</button></div>
     <ul class="fisse-l">${l.map((f, i) => { const c = contoDi(f.contoId); return `<li class="card fissa ${f.attiva ? "" : "off"}" data-id="${esc(f.id)}" style="--i:${i}">
       <span class="m-ic" style="--c:${catInfo(f.category)[1]}">${catInfo(f.category)[0]}</span>
-      <span class="m-t"><b>${esc(f.name)}</b><small>giorno ${f.giorno} · ${esc(f.category)}${c ? ` · ${esc(c.name)}` : ""} · ${f.ultimo ? `ultima ${f.ultimo}` : "mai generata"}</small></span>
-      <span class="m-v ${f.type}">${eurS((f.type === "uscita" ? -1 : 1) * Number(f.amount))}</span>
+      <span class="m-t"><b>${esc(f.name)}</b><small>${SETT(f) ? `ogni ${giornoSett(f.inizio || oggiISO())}` : `giorno ${f.giorno}`} · ${esc(f.category)}${c ? ` · ${esc(c.name)}` : ""} · ${f.ultimo ? `ultima ${f.ultimo}` : "mai generata"}</small></span>
+      <span class="m-v ${f.type}">${eurS((f.type === "uscita" ? -1 : 1) * Number(f.amount))}${SETT(f) ? "<small>/sett.</small>" : ""}</span>
       <input type="checkbox" class="tgm" ${f.attiva ? "checked" : ""} aria-label="Attiva">
     </li>`; }).join("") || ""}</ul>`;
   $("#fisse-nuova").addEventListener("click", () => apriFissa(null));
@@ -415,15 +432,22 @@ function apriFissa(fx) {
     <div class="seg lg tipo-seg" id="fx-tipo"><button type="button" data-v="uscita" class="${fx?.type !== "entrata" ? "on" : ""}">Uscita</button><button type="button" data-v="entrata" class="${fx?.type === "entrata" ? "on" : ""}">Entrata</button></div>
     <label>Nome<input name="nome" required autocomplete="off" placeholder="es. Affitto" value="${esc(fx?.name || "")}"></label>
     <div class="riga2"><label>Importo (€)<input name="importo" inputmode="decimal" placeholder="650,00" value="${fx ? String(fx.amount).replace(".", ",") : ""}"></label>
-      <label>Giorno del mese<input name="giorno" type="number" min="1" max="31" value="${fx?.giorno || 1}"></label></div>
+      <label>Ripetizione<select name="freq"><option value="mensile">Ogni mese</option><option value="settimanale" ${fx && SETT(fx) ? "selected" : ""}>Ogni settimana</option></select></label></div>
+    <label id="fx-g-mese">Giorno del mese<input name="giorno" type="number" min="1" max="31" value="${fx?.giorno || 1}"></label>
+    <label id="fx-g-sett">Primo pagamento<input name="inizio" type="date" value="${fx?.inizio || oggiISO()}"><small id="fx-sett-info"></small></label>
     <div class="riga2"><label>Conto<select name="conto">${optConti(fx?.contoId || conti()[0].id)}</select></label>
       <label>Categoria<input name="cat" list="dl-cat-fx" autocomplete="off" value="${esc(fx?.category || "Casa & Utenze")}"><datalist id="dl-cat-fx">${[...CAT_USCITA, ...CAT_ENTRATA].map((c) => `<option value="${esc(c)}">`).join("")}</datalist></label></div>
-    <label class="interruttore"><input name="attiva" type="checkbox" ${fx?.attiva === false ? "" : "checked"}><span>Attiva</span><small>Il movimento viene creato da solo il giorno indicato di ogni mese.</small></label>`,
+    <label class="interruttore"><input name="attiva" type="checkbox" ${fx?.attiva === false ? "" : "checked"}><span>Attiva</span><small>Il movimento viene creato da solo a ogni scadenza.</small></label>`,
   (f) => {
     const v = (n) => f.elements[n].value.trim(), imp = Math.round(numero(v("importo")) * 100) / 100, g = Math.min(31, Math.max(1, Number(v("giorno")) || 1));
+    const freq = v("freq"), inizio = v("inizio");
     if (!v("nome")) return "Dai un nome alla spesa fissa.";
     if (!(imp > 0)) return "Inserisci un importo maggiore di zero.";
-    const rec = { ...(fx || {}), id: fx?.id || nuovoId(), contoId: v("conto"), name: v("nome"), amount: imp, type: $("#fx-tipo button.on").dataset.v, category: v("cat") || "Altro", giorno: g, attiva: f.elements.attiva.checked };
+    if (freq === "settimanale" && !/^\d{4}-\d{2}-\d{2}$/.test(inizio)) return "Indica la data del primo pagamento.";
+    const rec = { ...(fx || {}), id: fx?.id || nuovoId(), contoId: v("conto"), name: v("nome"), amount: imp, type: $("#fx-tipo button.on").dataset.v, category: v("cat") || "Altro", giorno: g, freq, attiva: f.elements.attiva.checked };
+    if (freq === "settimanale") rec.inizio = inizio; else delete rec.inizio;
+    // cambiando ripetizione o data di partenza si riparte da capo (i movimenti già creati restano)
+    if (fx && ((fx.freq || "mensile") !== freq || (freq === "settimanale" && fx.inizio !== inizio))) delete rec.ultimo;
     op("finanze", (d) => ({ ...d, fisse: [...d.fisse.filter((x) => x.id !== rec.id), rec] }), fx ? "Modifica spesa fissa" : "Nuova spesa fissa");
     const n = generaFisse(false);
     toast(fx ? "Spesa fissa aggiornata" : `Spesa fissa creata${n ? `, ${plurale(n, "movimento registrato", "movimenti registrati")}` : ""}`);
@@ -434,6 +458,15 @@ function apriFissa(fx) {
   } : null);
   $("#fx-tipo").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; $$("#fx-tipo button").forEach((x) => x.classList.toggle("on", x === b)); segSync($("#fx-tipo")); });
   requestAnimationFrame(() => segSync($("#fx-tipo"), true));
+  const ff = $("#fin-form");
+  const sync = () => {
+    const s = ff.elements.freq.value === "settimanale";
+    $("#fx-g-mese").hidden = s; $("#fx-g-sett").hidden = !s;
+    const d = ff.elements.inizio.value, imp = numero(ff.elements.importo.value);
+    $("#fx-sett-info").textContent = s && d ? `Ogni ${giornoSett(d)}${imp > 0 ? ` · ≈ ${eur.format((imp * 52) / 12)} al mese` : ""}` : "";
+  };
+  ["freq", "inizio", "importo"].forEach((n) => ff.elements[n].addEventListener(n === "importo" ? "input" : "change", sync));
+  sync();
 }
 
 /* ---------- Collegamenti ---------- */
