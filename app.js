@@ -911,3 +911,32 @@ vai(location.hash.slice(1) || "home", false);
 document.fonts?.ready.then(() => { muoviThumb(false); $$(".seg").forEach((s) => segSync(s, true)); });
 carica();
 });
+
+/* ---------- Backup impostazioni (esporta/importa) ---------- */
+const BACKUP = {
+  async save(name, data){
+    const txt = JSON.stringify(data, null, 2);
+    const file = new File([txt], name, { type: "application/json" });
+    try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: name }); return true; } } catch (e) { if (e && e.name === "AbortError") return false; }
+    const a = document.createElement("a"); a.href = URL.createObjectURL(file); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    return true;
+  },
+  pick(){
+    return new Promise((res, rej) => {
+      const i = document.createElement("input"); i.type = "file"; i.accept = "application/json,.json";
+      i.onchange = async () => { try { res(JSON.parse(await i.files[0].text())); } catch (e) { rej(e); } };
+      i.click();
+    });
+  },
+  dump(keep){ const o = {}; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (keep(k)) o[k] = localStorage.getItem(k); } return o; },
+  restore(o, keep){ let n = 0; for (const [k, v] of Object.entries(o || {})) if (keep(k) && typeof v === "string") { localStorage.setItem(k, v); n++; } return n; }
+};
+
+{
+  const keep = (k) => k === LS.token || k === LS.nome || k === LS.tema || k === LS.cache;
+  $("#btn-bk-exp").addEventListener("click", () => BACKUP.save("abbonamenti-backup.json", { app: "abbonamenti", v: 1, data: BACKUP.dump(keep) }));
+  $("#btn-bk-imp").addEventListener("click", async () => {
+    try { const j = await BACKUP.pick(); if (j.app !== "abbonamenti") throw 0; BACKUP.restore(j.data, keep); location.reload(); }
+    catch (e) { alert("File di backup non valido"); }
+  });
+}
